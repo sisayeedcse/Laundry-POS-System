@@ -14,24 +14,22 @@ use Livewire\Attributes\Layout;
 
 class POS extends Component
 {
-    // Customer fields
-    public ?int $selectedCustomerId = null;
-    public string $customerName = '';
+    // Form fields
     public string $customerPhone = '';
-    public string $customerAddress = '';
-    public bool $showCustomerModal = false;
-
-    // Order fields
-    public array $cart = [];
-    public float $discount = 0;
-    public float $tax = 0;
-    public string $paymentMethod = 'cash';
+    public ?int $selectedCustomerId = null;
+    public array $items = []; // Multiple items array
+    public ?int $selectedServiceId = null;
+    public string $customOrderId = '';
+    public int $quantity = 1;
+    public float $price = 0;
+    public string $serviceType = 'wash_iron';
     public ?string $deliveryDate = null;
     public string $notes = '';
-
-    // Search
-    public string $search = '';
-    public string $selectedCategory = 'all';
+    
+    // No customer modal needed
+    public bool $showCustomerModal = false;
+    public string $customerName = '';
+    public string $customerAddress = '';
 
     /**
      * Mount component with default delivery date (tomorrow)
@@ -40,37 +38,70 @@ class POS extends Component
     {
         $this->deliveryDate = now()->addDay()->format('Y-m-d');
     }
+    
+    /**
+     * Search or auto-create customer by phone number
+     */
+    public function searchCustomer(): void
+    {
+        if (empty($this->customerPhone)) {
+            $this->selectedCustomerId = null;
+            return;
+        }
+        
+        $customer = Customer::where('phone', $this->customerPhone)->first();
+        
+        if (!$customer) {
+            // Auto-create customer with just phone number
+            $customer = Customer::create([
+                'name' => 'Customer-' . $this->customerPhone,
+                'phone' => $this->customerPhone,
+                'address' => null,
+            ]);
+            
+            session()->flash('info', 'New customer created automatically with phone: ' . $this->customerPhone);
+        }
+        
+        $this->selectedCustomerId = $customer->id;
+    }
 
     /**
-     * Get all services
+     * Get all active services
      */
     #[Computed]
     public function services()
     {
-        $query = Service::active();
-
-        if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
-        }
-
-        if ($this->selectedCategory !== 'all') {
-            $query->where('category', $this->selectedCategory);
-        }
-
-        return $query->get();
+        return Service::active()->orderBy('category')->orderBy('name')->get();
     }
-
+    
     /**
-     * Get all categories
+     * Update price when service is selected
      */
-    #[Computed]
-    public function categories()
+    public function updatedSelectedServiceId($value): void
     {
-        return Service::active()
-            ->select('category')
-            ->distinct()
-            ->whereNotNull('category')
-            ->pluck('category');
+        if ($value) {
+            $service = Service::find($value);
+            if ($service) {
+                $this->price = $this->serviceType === 'iron_only'
+                    ? (float) $service->price_iron_only
+                    : (float) $service->price_wash_iron;
+            }
+        }
+    }
+    
+    /**
+     * Update price when service type changes
+     */
+    public function updatedServiceType(): void
+    {
+        if ($this->selectedServiceId) {
+            $service = Service::find($this->selectedServiceId);
+            if ($service) {
+                $this->price = $this->serviceType === 'iron_only'
+                    ? (float) $service->price_iron_only
+                    : (float) $service->price_wash_iron;
+            }
+        }
     }
 
     /**
@@ -140,6 +171,117 @@ class POS extends Component
     {
         unset($this->cart[$cartKey]);
         $this->calculateCartSubtotals();
+    }
+
+    /**
+     * Add item to list
+     */
+    public function addItem(): void
+    {
+        // Validate item
+        $this->validate([
+            'selectedServiceId' => 'required|exists:services,id',
+            'quantity' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        $service = Service::find($this->selectedServiceId);
+        
+        $this->items[] = [
+            'service_id' => $this->selectedServiceId,
+            'service_name' => $service->name,
+            'service_type' => $this->serviceType,
+            'quantity' => $this->quantity,
+            'unit_price' => $this->price,
+            'subtotal' => $this->price * $this->quantity,
+        ];
+
+        // Reset item fields
+        $this->selectedServiceId = null;
+        $this->quantity = 1;
+        $this->price = 0;
+        $this->serviceType = 'wash_iron';
+    }
+
+    /**
+     * Remove item from list
+     */
+    public function removeItem(int $index): void
+    {
+        unset($this->items[$index]);
+        $this->items = array_values($this->items); // Re-index array
+    }
+
+    /**
+     * Get total amount for all items
+     */
+    public function getTotalAmountProperty(): float
+    {
+        return array_sum(array_column($this->items, 'subtotal'));
+    }
+
+    /**
+     * Create new order (Entry button)
+     */
+    public function createOrder(): void
+    {
+        // Validation
+        $this->validate([
+            'customerPhone' => 'required|string',
+            'customOrderId' => 'nullable|string|max:50|unique:orders,order_number',
+            'deliveryDate' => 'required|date|after_or_equal:today',
+        ]);
+
+        if (empty($this->items)) {
+            session()->flash('error', 'Please add at least one service item!');
+            return;
+        }
+
+        // Ensure customer exists
+        if (!$this->selectedCustomerId) {
+            $this->searchCustomer();
+            if (!$this->selectedCustomerId) {
+                session()->flash('error', 'Failed to create/find customer!');
+                return;
+            }
+        }
+
+        // Calculate total
+        $totalAmount = $this->totalAmount;
+
+        // Create order
+        $order = Order::create([
+            'customer_id' => $this->selectedCustomerId,
+            'order_number' => !empty($this->customOrderId) ? $this->customOrderId : Order::generateOrderNumber(),
+            'total_amount' => $totalAmount,
+            'discount' => 0,
+            'tax' => 0,
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'payment_method' => null,
+            'delivery_date' => $this->deliveryDate,
+            'notes' => $this->notes,
+        ]);
+
+        // Create order items
+        foreach ($this->items as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'service_id' => $item['service_id'],
+                'quantity' => $item['quantity'],
+                'service_type' => $item['service_type'],
+                'unit_price' => $item['unit_price'],
+                'subtotal' => $item['subtotal'],
+            ]);
+        }
+
+        // Update customer total orders
+        $order->customer->increment('total_orders');
+
+        session()->flash('success', 'Order #' . $order->order_number . ' created successfully! Status: Pending');
+
+        // Reset form
+        $this->resetForm();
     }
 
     /**
@@ -229,93 +371,24 @@ class POS extends Component
     private function resetCustomerFields(): void
     {
         $this->customerName = '';
-        $this->customerPhone = '';
         $this->customerAddress = '';
     }
 
     /**
-     * Create order
+     * Reset form after successful order creation
      */
-    public function createOrder(): void
+    private function resetForm(): void
     {
-        // Validation
-        if (empty($this->cart)) {
-            session()->flash('error', 'Cart is empty!');
-            return;
-        }
-
-        if (!$this->selectedCustomerId) {
-            session()->flash('error', 'Please select a customer!');
-            return;
-        }
-
-        $this->validate([
-            'deliveryDate' => 'required|date|after_or_equal:today',
-            'paymentMethod' => 'required|in:cash,card',
-        ]);
-
-        // Create order
-        $order = Order::create([
-            'customer_id' => $this->selectedCustomerId,
-            'order_number' => Order::generateOrderNumber(),
-            'total_amount' => $this->total,
-            'discount' => $this->discount,
-            'tax' => $this->tax,
-            'advance_payment' => $this->total,
-            'status' => 'pending',
-            'payment_status' => 'paid',
-            'payment_method' => $this->paymentMethod,
-            'delivery_date' => $this->deliveryDate,
-            'notes' => $this->notes,
-        ]);
-
-        // Create order items
-        foreach ($this->cart as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'service_id' => $item['service_id'],
-                'quantity' => $item['quantity'],
-                'service_type' => $item['service_type'],
-                'unit_price' => $item['unit_price'],
-                'subtotal' => $item['subtotal'],
-            ]);
-        }
-
-        // Update customer total orders
-        $order->customer->incrementOrders();
-
-        // Reset form
-        $this->resetOrder();
-
-        session()->flash('success', 'Order created successfully! Order #' . $order->order_number);
-        
-        // Redirect to orders page
-        $this->redirect('/orders');
-    }
-
-    /**
-     * Reset order form
-     */
-    private function resetOrder(): void
-    {
-        $this->cart = [];
+        $this->customerPhone = '';
         $this->selectedCustomerId = null;
-        $this->discount = 0;
-        $this->tax = 0;
-        $this->paymentMethod = 'cash';
-        $this->deliveryDate = now()->addDay()->format('Y-m-d');
+        $this->selectedServiceId = null;
+        $this->customOrderId = '';
+        $this->items = [];
+        $this->quantity = 1;
+        $this->price = 0;
+        $this->serviceType = 'wash_iron';
         $this->notes = '';
-    }
-
-    /**
-     * Clear cart
-     */
-    /**
-     * Clear cart
-     */
-    public function clearCart(): void
-    {
-        $this->cart = [];
+        $this->deliveryDate = now()->addDay()->format('Y-m-d');
     }
 
     #[Layout('components.layouts.app', ['title' => 'POS - Point of Sale'])]
