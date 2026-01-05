@@ -15,6 +15,7 @@ class OrderDetails extends Component
     public int $orderId;
     public bool $showModal = false;
     public bool $showPaymentModal = false;
+    public string $selectedPaymentMethod = 'cash';
 
     /**
      * Mount component
@@ -53,16 +54,43 @@ class OrderDetails extends Component
         $order = Order::findOrFail($this->orderId);
         $order->update(['status' => $status]);
 
-        // When order is delivered, mark payment as completed
+        // When order is delivered, show payment modal instead of auto-marking as paid
         if ($status === 'delivered' && $order->payment_status !== 'paid') {
-            $order->update(['payment_status' => 'paid']);
-            session()->flash('success', 'Order delivered and payment marked as completed!');
+            $this->showPaymentModal = true;
+            session()->flash('success', 'Order delivered! Please select payment method.');
         } else {
             session()->flash('success', 'Order status updated to ' . ucfirst($status) . '!');
         }
         
         // Refresh the computed property
         unset($this->order);
+    }
+
+    /**
+     * Complete payment with selected method
+     */
+    public function completePayment(): void
+    {
+        $order = Order::findOrFail($this->orderId);
+        
+        $order->update([
+            'payment_status' => 'paid',
+            'payment_method' => $this->selectedPaymentMethod,
+        ]);
+
+        $this->showPaymentModal = false;
+        session()->flash('success', 'Payment completed via ' . strtoupper($this->selectedPaymentMethod) . '!');
+        
+        // Refresh the computed property
+        unset($this->order);
+    }
+
+    /**
+     * Close payment modal
+     */
+    public function closePaymentModal(): void
+    {
+        $this->showPaymentModal = false;
     }
 
     /**

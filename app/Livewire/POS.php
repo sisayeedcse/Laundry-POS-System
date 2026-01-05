@@ -40,7 +40,7 @@ class POS extends Component
     }
     
     /**
-     * Search or auto-create customer by phone number
+     * Search for existing customer by phone number (no auto-create)
      */
     public function searchCustomer(): void
     {
@@ -51,18 +51,11 @@ class POS extends Component
         
         $customer = Customer::where('phone', $this->customerPhone)->first();
         
-        if (!$customer) {
-            // Auto-create customer with just phone number
-            $customer = Customer::create([
-                'name' => 'Customer-' . $this->customerPhone,
-                'phone' => $this->customerPhone,
-                'address' => null,
-            ]);
-            
-            session()->flash('info', 'New customer created automatically with phone: ' . $this->customerPhone);
+        if ($customer) {
+            $this->selectedCustomerId = $customer->id;
+        } else {
+            $this->selectedCustomerId = null;
         }
-        
-        $this->selectedCustomerId = $customer->id;
     }
 
     /**
@@ -228,7 +221,7 @@ class POS extends Component
         // Validation
         $this->validate([
             'customerPhone' => 'required|string',
-            'customOrderId' => 'nullable|string|max:50|unique:orders,order_number',
+            'customOrderId' => 'required|string|max:50|unique:orders,order_number',
             'deliveryDate' => 'required|date|after_or_equal:today',
         ]);
 
@@ -237,22 +230,30 @@ class POS extends Component
             return;
         }
 
-        // Ensure customer exists
+        // Create or find customer when creating order
         if (!$this->selectedCustomerId) {
-            $this->searchCustomer();
-            if (!$this->selectedCustomerId) {
-                session()->flash('error', 'Failed to create/find customer!');
-                return;
+            // Check if customer exists
+            $customer = Customer::where('phone', $this->customerPhone)->first();
+            
+            if (!$customer) {
+                // Create new customer
+                $customer = Customer::create([
+                    'name' => 'Customer-' . $this->customerPhone,
+                    'phone' => $this->customerPhone,
+                    'address' => null,
+                ]);
             }
+            
+            $this->selectedCustomerId = $customer->id;
         }
 
         // Calculate total
         $totalAmount = $this->totalAmount;
 
-        // Create order
+        // Create order with custom order ID (required)
         $order = Order::create([
             'customer_id' => $this->selectedCustomerId,
-            'order_number' => !empty($this->customOrderId) ? $this->customOrderId : Order::generateOrderNumber(),
+            'order_number' => $this->customOrderId,
             'total_amount' => $totalAmount,
             'discount' => 0,
             'tax' => 0,

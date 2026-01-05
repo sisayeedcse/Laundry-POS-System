@@ -1,8 +1,8 @@
-<div class="p-6">
-    {{-- Header --}}
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Point of Sale (POS)</h1>
-        <p class="mt-2 text-sm text-gray-600">Create new laundry orders</p>
+<div class="min-h-screen bg-gray-50 p-4">
+    {{-- Simple Header --}}
+    <div class="mb-6 text-center">
+        <h1 class="text-4xl font-bold text-purple-600">🧺 New Order</h1>
+        <p class="mt-2 text-lg text-gray-600">Simple & Fast Entry</p>
     </div>
 
     {{-- Flash Messages --}}
@@ -24,195 +24,178 @@
         </div>
     @endif
 
-    {{-- Order Entry Form --}}
-    <div class="rounded-lg bg-white shadow-lg">
-        <div class="border-b border-gray-200 bg-purple-600 p-4 rounded-t-lg">
-            <h2 class="text-xl font-bold text-white">New Order Entry</h2>
-        </div>
-
-        <div class="p-6">
-            {{-- Customer Phone and Order ID Row --}}
-            <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+    {{-- Step 1: Customer Info --}}
+    <div class="max-w-6xl mx-auto mb-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📞 Step 1: Order Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Customer Phone *</label>
+                    <label class="block text-lg font-semibold text-gray-700 mb-2">🔢 Order ID *</label>
+                    <input type="text" wire:model="customOrderId"
+                        placeholder="Enter Order ID"
+                        class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg font-bold focus:border-purple-500 focus:ring-2 focus:ring-purple-200" />
+                    @error('customOrderId')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-lg font-semibold text-gray-700 mb-2">📱 Phone Number *</label>
                     <input type="text" wire:model.live="customerPhone" wire:blur="searchCustomer"
-                        placeholder="Enter phone number"
-                        class="w-full rounded border-gray-300 text-sm focus:border-purple-500 focus:ring-purple-500" />
+                        placeholder="0501234567"
+                        class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" />
                     @if($this->selectedCustomer)
-                        <p class="mt-1 text-xs text-green-600">✓ {{ $this->selectedCustomer->name }}</p>
+                        <p class="mt-2 text-base font-medium text-green-600">✓ Existing: {{ $this->selectedCustomer->name }}</p>
+                    @else
+                        @if(!empty($customerPhone))
+                            <p class="mt-2 text-base font-medium text-blue-600">ℹ️ New customer will be created</p>
+                        @endif
                     @endif
                     @error('customerPhone')
-                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Custom Order ID (Optional)</label>
-                    <input type="text" wire:model="customOrderId" placeholder="Auto-generate if empty"
-                        class="w-full rounded border-gray-300 text-sm focus:border-purple-500 focus:ring-purple-500" />
-                    @error('customOrderId')
-                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Date *</label>
+                    <label class="block text-lg font-semibold text-gray-700 mb-2">📅 Delivery Date *</label>
                     <input type="date" wire:model="deliveryDate" min="{{ date('Y-m-d') }}"
-                        class="w-full rounded border-gray-300 text-sm focus:border-purple-500 focus:ring-purple-500" />
+                        class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" />
                     @error('deliveryDate')
-                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- Add Service Items --}}
-            <div class="overflow-x-auto">
-                <table class="min-w-full border-collapse border border-gray-300">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="border border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                                Laundry Items
-                            </th>
-                            <th class="border border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                                Service Type
-                            </th>
-                            <th class="border border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                                Quantity
-                            </th>
-                            <th class="border border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                                Price (AED)
-                            </th>
-                            <th class="border border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                                Subtotal
-                            </th>
-                            <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                                Action
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{-- Input Row --}}
-                        <tr class="bg-blue-50">
-                            <td class="border border-gray-300 px-4 py-3">
-                                <select wire:model.live="selectedServiceId"
-                                    class="w-full rounded border-gray-300 text-sm focus:border-purple-500 focus:ring-purple-500">
-                                    <option value="">Select Service</option>
-                                    @foreach($this->services as $service)
-                                        <option value="{{ $service->id }}">
-                                            {{ $service->name }} ({{ $service->category }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('selectedServiceId')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </td>
+    {{-- Step 2: Add Items --}}
+    <div class="max-w-6xl mx-auto mb-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">👕 Step 2: Add Laundry Items</h2>
+            
+            {{-- Simple Add Item Card --}}
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6 border-2 border-dashed border-purple-300">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="lg:col-span-2">
+                        <label class="block text-base font-semibold text-gray-700 mb-2">Item</label>
+                        <select wire:model.live="selectedServiceId"
+                            class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
+                            <option value="">Choose item...</option>
+                            @foreach($this->services as $service)
+                                <option value="{{ $service->id }}">
+                                    {{ $service->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                            <td class="border border-gray-300 px-4 py-3">
-                                <select wire:model.live="serviceType"
-                                    class="w-full rounded border-gray-300 text-sm focus:border-purple-500 focus:ring-purple-500">
-                                    <option value="wash_iron">Wash & Iron</option>
-                                    <option value="iron_only">Iron Only</option>
-                                </select>
-                            </td>
+                    <div>
+                        <label class="block text-base font-semibold text-gray-700 mb-2">Service</label>
+                        <select wire:model.live="serviceType"
+                            class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
+                            <option value="wash_iron">🧼 Wash & Iron</option>
+                            <option value="iron_only">🔥 Iron Only</option>
+                        </select>
+                    </div>
 
-                            <td class="border border-gray-300 px-4 py-3">
-                                <input type="number" wire:model="quantity" min="1"
-                                    class="w-20 rounded border-gray-300 text-sm focus:border-purple-500 focus:ring-purple-500" />
-                                @error('quantity')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </td>
+                    <div>
+                        <label class="block text-base font-semibold text-gray-700 mb-2">Qty</label>
+                        <input type="number" wire:model="quantity" min="1"
+                            class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base text-center font-bold focus:border-purple-500" />
+                    </div>
 
-                            <td class="border border-gray-300 px-4 py-3">
-                                <input type="number" wire:model="price" step="0.01" min="0"
-                                    class="w-24 rounded border-gray-300 text-sm font-semibold focus:border-purple-500 focus:ring-purple-500" />
-                                @error('price')
-                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </td>
+                    <div>
+                        <label class="block text-base font-semibold text-gray-700 mb-2">Price (AED)</label>
+                        <input type="number" wire:model="price" step="0.01" min="0"
+                            class="w-full rounded-lg border-2 border-purple-300 px-4 py-3 text-base font-bold text-purple-600 focus:border-purple-500" />
+                    </div>
+                </div>
 
-                            <td class="border border-gray-300 px-4 py-3 text-center">
-                                <span class="font-semibold text-purple-600">
-                                    {{ number_format($price * $quantity, 2) }}
-                                </span>
-                            </td>
+                <div class="mt-4 flex items-center justify-between">
+                    <div class="text-xl font-bold text-gray-700">
+                        Subtotal: <span class="text-purple-600">{{ number_format($price * $quantity, 2) }} AED</span>
+                    </div>
+                    <button type="button" wire:click="addItem"
+                        class="rounded-xl bg-green-600 px-8 py-3 text-lg font-bold text-white hover:bg-green-700 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        ➕ Add Item
+                    </button>
+                </div>
+            </div>
 
-                            <td class="border border-gray-300 px-4 py-3 text-center">
-                                <button type="button" wire:click="addItem"
-                                    class="rounded bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
-                                    + Add
-                                </button>
-                            </td>
-                        </tr>
-
-                        {{-- Added Items --}}
-                        @forelse($items as $index => $item)
-                            <tr class="hover:bg-gray-50">
-                                <td class="border border-gray-300 px-4 py-3">
-                                    {{ $item['service_name'] }}
-                                </td>
-                                <td class="border border-gray-300 px-4 py-3">
-                                    <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold
-                                        {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
+            {{-- Added Items List --}}
+            <div class="space-y-3">
+                @forelse($items as $index => $item)
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-purple-300 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 grid grid-cols-4 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Item</p>
+                                    <p class="text-lg font-bold text-gray-800">{{ $item['service_name'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Service</p>
+                                    <span class="inline-flex rounded-full px-3 py-1 text-sm font-bold
+                                        {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
                                         {{ $item['service_type'] === 'wash_iron' ? 'Wash & Iron' : 'Iron Only' }}
                                     </span>
-                                </td>
-                                <td class="border border-gray-300 px-4 py-3 text-center">
-                                    {{ $item['quantity'] }}
-                                </td>
-                                <td class="border border-gray-300 px-4 py-3 text-right">
-                                    {{ number_format($item['unit_price'], 2) }}
-                                </td>
-                                <td class="border border-gray-300 px-4 py-3 text-right font-semibold">
-                                    {{ number_format($item['subtotal'], 2) }}
-                                </td>
-                                <td class="border border-gray-300 px-4 py-3 text-center">
-                                    <button type="button" wire:click="removeItem({{ $index }})"
-                                        class="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700">
-                                        Remove
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="border border-gray-300 px-4 py-8 text-center text-gray-500">
-                                    No items added yet. Use the form above to add services.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Quantity</p>
+                                    <p class="text-lg font-bold text-gray-800">{{ $item['quantity'] }} pcs</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Amount</p>
+                                    <p class="text-lg font-bold text-purple-600">{{ number_format($item['subtotal'], 2) }} AED</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="removeItem({{ $index }})"
+                                class="ml-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600">
+                                🗑️ Remove
+                            </button>
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-gray-100 rounded-xl p-8 text-center">
+                        <p class="text-gray-500 text-lg">No items added yet</p>
+                        <p class="text-gray-400 text-sm mt-1">Use the form above to add laundry items</p>
+                    </div>
+                @endforelse
             </div>
+        </div>
+    </div>
 
-            {{-- Notes --}}
-            <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional):</label>
-                <textarea wire:model="notes" rows="2" placeholder="Special instructions..."
-                    class="w-full rounded border-gray-300 text-sm focus:border-purple-500 focus:ring-purple-500"></textarea>
-            </div>
+    {{-- Step 3: Notes (Optional) --}}
+    <div class="max-w-6xl mx-auto mb-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 Step 3: Special Notes (Optional)</h2>
+            <textarea wire:model="notes" rows="3" placeholder="Any special instructions? (e.g., Extra starch, no hangers, etc.)"
+                class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-base focus:border-purple-500 focus:ring-2 focus:ring-purple-200"></textarea>
+        </div>
+    </div>
 
-            {{-- Total and Entry Button --}}
-            <div class="mt-6 flex items-center justify-between border-t pt-4">
-                <div class="text-lg">
-                    <span class="text-gray-700 font-medium">Total Amount:</span>
-                    <span class="ml-2 text-3xl font-bold text-purple-600">
-                        {{ number_format($this->totalAmount, 2) }} AED
-                    </span>
-                    <span class="ml-2 text-sm text-gray-500">({{ count($items) }} item(s))</span>
+    {{-- Total & Submit --}}
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl p-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white text-lg opacity-90 mb-2">Total Amount</p>
+                    <p class="text-white text-5xl font-bold">
+                        {{ number_format($this->totalAmount, 2) }} <span class="text-2xl">AED</span>
+                    </p>
+                    <p class="text-white text-base opacity-75 mt-2">{{ count($items) }} item(s) added</p>
                 </div>
 
                 <button type="button" wire:click="createOrder"
-                    class="rounded-lg bg-purple-600 px-8 py-3 text-lg font-semibold text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                    📥 Entry Order
+                    class="rounded-2xl bg-white px-12 py-6 text-2xl font-bold text-purple-600 hover:bg-gray-100 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all">
+                    ✅ Create Order
                 </button>
             </div>
+        </div>
 
-            <div class="mt-4 rounded-lg bg-yellow-50 p-4">
-                <p class="text-sm text-yellow-800">
-                    <strong>Note:</strong> Order will be saved as <strong>PENDING</strong> status. Payment will be calculated when status changes to <strong>DELIVERED</strong>.
-                </p>
-            </div>
+        <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4">
+            <p class="text-blue-800 text-base">
+                💡 <strong>Tip:</strong> Order will be saved as <strong>PENDING</strong>. Payment collected when customer picks up.
+            </p>
         </div>
     </div>
 </div>

@@ -117,6 +117,10 @@ class OrderList extends Component
             } else {
                 session()->flash('success', 'Order status updated successfully!');
             }
+            
+            // Force refresh the orders list by resetting pagination and clearing cache
+            $this->resetPage();
+            $this->dispatch('$refresh');
         }
     }
 

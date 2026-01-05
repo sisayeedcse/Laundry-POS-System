@@ -396,8 +396,108 @@
         </div>
     @endif
 
-    {{-- Record Payment Modal --}}
+    {{-- Payment Method Selection Modal --}}
     @if($showPaymentModal)
-        @livewire('orders.record-payment', ['orderId' => $orderId])
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="payment-modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <!-- Background overlay -->
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="closePaymentModal"></div>
+
+                <!-- Modal panel -->
+                <div class="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full">
+                    <div class="bg-white px-6 pt-6 pb-4">
+                        <div class="flex items-center mb-4">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-lg font-medium text-gray-900 text-center mb-4" id="payment-modal-title">
+                            Select Payment Method
+                        </h3>
+
+                        <p class="text-sm text-gray-500 text-center mb-6">
+                            Order has been delivered. Please select the payment method used by customer.
+                        </p>
+
+                        <!-- Payment Method Selection -->
+                        <div class="space-y-3">
+                            <label class="relative flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors
+                                {{ $selectedPaymentMethod === 'cash' ? 'border-green-500 bg-green-50' : 'border-gray-300' }}">
+                                <input type="radio" wire:model="selectedPaymentMethod" value="cash" class="sr-only">
+                                <div class="flex items-center flex-1">
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-8 h-8 {{ $selectedPaymentMethod === 'cash' ? 'text-green-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-base font-semibold {{ $selectedPaymentMethod === 'cash' ? 'text-green-900' : 'text-gray-900' }}">
+                                            Cash Payment
+                                        </p>
+                                        <p class="text-sm {{ $selectedPaymentMethod === 'cash' ? 'text-green-700' : 'text-gray-500' }}">
+                                            Customer paid in cash
+                                        </p>
+                                    </div>
+                                </div>
+                                @if($selectedPaymentMethod === 'cash')
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </label>
+
+                            <label class="relative flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors
+                                {{ $selectedPaymentMethod === 'card' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300' }}">
+                                <input type="radio" wire:model="selectedPaymentMethod" value="card" class="sr-only">
+                                <div class="flex items-center flex-1">
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-8 h-8 {{ $selectedPaymentMethod === 'card' ? 'text-indigo-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-base font-semibold {{ $selectedPaymentMethod === 'card' ? 'text-indigo-900' : 'text-gray-900' }}">
+                                            Card Payment
+                                        </p>
+                                        <p class="text-sm {{ $selectedPaymentMethod === 'card' ? 'text-indigo-700' : 'text-gray-500' }}">
+                                            Customer paid by card
+                                        </p>
+                                    </div>
+                                </div>
+                                @if($selectedPaymentMethod === 'card')
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </label>
+                        </div>
+
+                        <div class="mt-4 rounded-lg bg-yellow-50 p-3">
+                            <p class="text-xs text-yellow-800">
+                                <strong>Note:</strong> Total amount: <strong>{{ number_format($this->order->total_amount, 2) }} AED</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
+                        <button type="button" wire:click="completePayment"
+                            class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-3 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Complete Payment
+                        </button>
+                        <button type="button" wire:click="closePaymentModal"
+                            class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-3 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:w-auto sm:text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 </div>

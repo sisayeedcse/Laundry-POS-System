@@ -122,40 +122,45 @@
                                     AED</div>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
-                                <select wire:change="updateStatus({{ $order->id }}, $event.target.value)" class="rounded-full border-0 text-xs font-semibold
-                                                @if($order->status === 'pending') bg-yellow-100 text-yellow-800
-                                                @elseif($order->status === 'processing') bg-blue-100 text-blue-800
-                                                @elseif($order->status === 'ready') bg-purple-100 text-purple-800
-                                                @else bg-green-100 text-green-800
-                                                @endif">
-                                    <option value="pending" @selected($order->status === 'pending')>Pending</option>
-                                    <option value="processing" @selected($order->status === 'processing')>Processing
+                                <select wire:change="updateStatus({{ $order->id }}, $event.target.value)"
+                                    wire:key="status-{{ $order->id }}" class="rounded-full border-0 text-xs font-semibold cursor-pointer focus:ring-2 focus:ring-purple-500
+                                                    @if($order->status === 'pending') bg-yellow-100 text-yellow-800
+                                                    @elseif($order->status === 'processing') bg-blue-100 text-blue-800
+                                                    @elseif($order->status === 'ready') bg-purple-100 text-purple-800
+                                                    @else bg-green-100 text-green-800
+                                                    @endif">
+                                    <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending
                                     </option>
-                                    <option value="ready" @selected($order->status === 'ready')>Ready</option>
-                                    <option value="delivered" @selected($order->status === 'delivered')>Delivered</option>
+                                    <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>
+                                        Processing</option>
+                                    <option value="ready" {{ $order->status === 'ready' ? 'selected' : '' }}>Ready</option>
+                                    <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered
+                                    </option>
                                 </select>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
                                 <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold
-                                            @if($order->payment_status === 'pending') bg-red-100 text-red-800
-                                            @elseif($order->payment_status === 'partial') bg-orange-100 text-orange-800
-                                            @else bg-green-100 text-green-800
-                                            @endif">
+                                                @if($order->payment_status === 'pending') bg-red-100 text-red-800
+                                                @elseif($order->payment_status === 'partial') bg-orange-100 text-orange-800
+                                                @else bg-green-100 text-green-800
+                                                @endif">
                                     {{ ucfirst($order->payment_status) }}
                                 </span>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold
-                                            @if($order->payment_method === 'cash') bg-emerald-100 text-emerald-800
-                                            @else bg-indigo-100 text-indigo-800
-                                            @endif">
+                                                @if($order->payment_method === 'cash') bg-emerald-100 text-emerald-800
+                                                @else bg-indigo-100 text-indigo-800
+                                                @endif">
                                     @if($order->payment_method === 'cash')
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
                                     @else
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                         </svg>
                                     @endif
                                     {{ strtoupper($order->payment_method) }}

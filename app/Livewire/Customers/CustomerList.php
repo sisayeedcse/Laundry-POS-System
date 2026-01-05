@@ -86,6 +86,7 @@ class CustomerList extends Component
     {
         $this->selectedCustomerId = $customerId;
         $this->showDetailsModal = true;
+        $this->dispatch('open-customer-details');
     }
 
     /**
