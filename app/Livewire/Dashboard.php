@@ -102,7 +102,6 @@ class Dashboard extends Component
         return [
             'total_revenue' => $totalRevenue,
             'paid_revenue' => $paidRevenue,
-            'total_expenses' => 0,
             'gross_profit' => $profit,
             'profit_margin' => $paidRevenue > 0 ? round(($profit / $paidRevenue) * 100, 2) : 0,
             'average_order_value' => $averageOrderValue,
@@ -160,6 +159,9 @@ class Dashboard extends Component
             return [
                 'total_customers' => Customer::count(),
                 'active_customers' => Customer::where('is_active', true)->count(),
+                'new_customers_this_month' => Customer::whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->count(),
                 'total_services' => Service::count(),
                 'active_services' => Service::where('is_active', true)->count(),
             ];

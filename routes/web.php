@@ -51,6 +51,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', \App\Livewire\Services\ServiceList::class)->name('index');
     });
 
+    // Reports Routes - All roles
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', \App\Livewire\Reports::class)->name('index');
+    });
+
     // Settings Routes - Admin only
     Route::prefix('settings')->name('settings.')->middleware('role:admin')->group(function () {
         Route::get('/', \App\Livewire\Settings::class)->name('index');

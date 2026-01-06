@@ -22,6 +22,7 @@ class OrderList extends Component
     public ?string $dateTo = null;
     public ?int $selectedOrderId = null;
     public bool $showDetailsModal = false;
+    public ?int $pendingOrderId = null;
 
     /**
      * Reset pagination when filters change
@@ -110,10 +111,10 @@ class OrderList extends Component
         if ($order) {
             $order->update(['status' => $status]);
             
-            // When order is delivered, mark payment as completed
+            // When order is delivered, show inline payment selection
             if ($status === 'delivered' && $order->payment_status !== 'paid') {
-                $order->update(['payment_status' => 'paid']);
-                session()->flash('success', 'Order delivered and payment marked as completed!');
+                $this->pendingOrderId = $orderId;
+                session()->flash('info', 'Please select payment method to complete the order.');
             } else {
                 session()->flash('success', 'Order status updated successfully!');
             }
@@ -143,6 +144,26 @@ class OrderList extends Component
             
             session()->flash('success', 'Order deleted successfully!');
             $this->resetPage();
+        }
+    }
+
+    /**
+     * Complete payment with selected method
+     */
+    public function completePayment(int $orderId, string $paymentMethod): void
+    {
+        $order = Order::find($orderId);
+        
+        if ($order && $order->status === 'delivered') {
+            $order->update([
+                'payment_status' => 'paid',
+                'payment_method' => $paymentMethod,
+            ]);
+
+            $this->pendingOrderId = null;
+            session()->flash('success', 'Order delivered and payment recorded as ' . strtoupper($paymentMethod) . '!');
+            $this->resetPage();
+            $this->dispatch('$refresh');
         }
     }
 
