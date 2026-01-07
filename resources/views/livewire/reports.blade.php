@@ -96,8 +96,8 @@
                 <div>
                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Revenue</p>
                     <p class="text-3xl font-bold text-green-600 mt-2">
-                        {{ number_format($this->salesData['total_revenue'], 2) }} <span
-                            class="text-lg text-gray-600">AED</span></p>
+                        {{ number_format((float) $this->salesData['total_revenue'], 2) }} <span
+                            class="text-lg text-gray-600">QAR</span></p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,8 +175,8 @@
                     <div class="flex items-baseline justify-between mb-2">
                         <span class="text-sm font-medium text-gray-600">Total Amount</span>
                         <span
-                            class="text-3xl font-bold text-emerald-600">{{ number_format($this->paymentMethodData['cash_amount'], 2) }}
-                            <span class="text-sm text-gray-600">AED</span></span>
+                            class="text-3xl font-bold text-emerald-600">{{ number_format((float) $this->paymentMethodData['cash_amount'], 2) }}
+                            <span class="text-sm text-gray-600">QAR</span></span>
                     </div>
                 </div>
                 <div>
@@ -191,8 +191,8 @@
                         <div class="flex items-baseline justify-between">
                             <span class="text-xs font-medium text-gray-500">Average per Order</span>
                             <span
-                                class="text-lg font-semibold text-emerald-600">{{ number_format($this->paymentMethodData['cash_amount'] / $this->paymentMethodData['cash_count'], 2) }}
-                                AED</span>
+                                class="text-lg font-semibold text-emerald-600">{{ number_format((float) $this->paymentMethodData['cash_amount'] / $this->paymentMethodData['cash_count'], 2) }}
+                                QAR</span>
                         </div>
                     </div>
                 @endif
@@ -217,8 +217,8 @@
                     <div class="flex items-baseline justify-between mb-2">
                         <span class="text-sm font-medium text-gray-600">Total Amount</span>
                         <span
-                            class="text-3xl font-bold text-indigo-600">{{ number_format($this->paymentMethodData['card_amount'], 2) }}
-                            <span class="text-sm text-gray-600">AED</span></span>
+                            class="text-3xl font-bold text-indigo-600">{{ number_format((float) $this->paymentMethodData['card_amount'], 2) }}
+                            <span class="text-sm text-gray-600">QAR</span></span>
                     </div>
                 </div>
                 <div>
@@ -233,8 +233,8 @@
                         <div class="flex items-baseline justify-between">
                             <span class="text-xs font-medium text-gray-500">Average per Order</span>
                             <span
-                                class="text-lg font-semibold text-indigo-600">{{ number_format($this->paymentMethodData['card_amount'] / $this->paymentMethodData['card_count'], 2) }}
-                                AED</span>
+                                class="text-lg font-semibold text-indigo-600">{{ number_format((float) $this->paymentMethodData['card_amount'] / $this->paymentMethodData['card_count'], 2) }}
+                                QAR</span>
                         </div>
                     </div>
                 @endif
@@ -262,7 +262,7 @@
                             <p class="text-xs text-gray-600">{{ $service->total_quantity }} items</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-purple-600">{{ number_format($service->total_revenue, 2) }} AED</p>
+                            <p class="font-bold text-purple-600">{{ number_format((float) $service->total_revenue, 2) }} QAR</p>
                         </div>
                     </div>
                 @empty
@@ -296,7 +296,7 @@
                             <p class="text-xs text-gray-600">{{ $order->customer->name }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-gray-900 text-sm">{{ number_format($order->total_amount, 2) }} AED</p>
+                            <p class="font-bold text-gray-900 text-sm">{{ number_format((float) $order->total_amount, 2) }} QAR</p>
                             <p class="text-xs text-gray-500">{{ $order->created_at->format('d M, h:i A') }}</p>
                         </div>
                     </div>

@@ -56,6 +56,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', \App\Livewire\Reports::class)->name('index');
     });
 
+    // Due Payments Routes - All roles
+    Route::prefix('due-payments')->name('due-payments.')->group(function () {
+        Route::get('/', \App\Livewire\DuePayments::class)->name('index');
+    });
+
     // Settings Routes - Admin only
     Route::prefix('settings')->name('settings.')->middleware('role:admin')->group(function () {
         Route::get('/', \App\Livewire\Settings::class)->name('index');

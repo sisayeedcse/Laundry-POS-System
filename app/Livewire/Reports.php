@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Customer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -50,12 +51,19 @@ class Reports extends Component
                 break;
         }
 
+        // Clone queries to avoid condition accumulation
+        $totalQuery = clone $query;
+        $revenueQuery = clone $query;
+        $paidQuery = clone $query;
+        $pendingQuery = clone $query;
+        $deliveredQuery = clone $query;
+
         return [
-            'total_orders' => $query->count(),
-            'total_revenue' => $query->sum('total_amount'),
-            'paid_orders' => $query->where('payment_status', 'paid')->count(),
-            'pending_orders' => $query->where('payment_status', 'pending')->count(),
-            'delivered_orders' => $query->where('status', 'delivered')->count(),
+            'total_orders' => $totalQuery->count(),
+            'total_revenue' => $revenueQuery->sum('total_amount'),
+            'paid_orders' => $paidQuery->where('payment_status', 'paid')->count(),
+            'pending_orders' => $pendingQuery->where('payment_status', 'pending')->count(),
+            'delivered_orders' => $deliveredQuery->where('status', 'delivered')->count(),
         ];
     }
 

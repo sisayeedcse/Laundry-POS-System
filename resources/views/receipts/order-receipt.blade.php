@@ -122,6 +122,7 @@
                 margin: 0;
                 padding: 5mm;
             }
+
             .no-print {
                 display: none;
             }
@@ -142,47 +143,54 @@
 
         <div class="divider"></div>
 
-        <!-- Order Info -->
-        <div class="info-line">
-            <span>Order:</span>
-            <span class="bold">#{{ $order->order_number }}</span>
-        </div>
-        <div class="info-line">
-            <span>Date:</span>
-            <span>{{ $order->created_at->format('d M Y, H:i') }}</span>
-        </div>
-        <div class="info-line">
-            <span>Customer:</span>
-            <span>{{ $order->customer->name }}</span>
-        </div>
-        @if($order->customer->phone)
-        <div class="info-line">
-            <span>Phone:</span>
-            <span>{{ $order->customer->phone }}</span>
-        </div>
-        @endif
-        <div class="info-line">
-            <span>Delivery:</span>
-            <span>{{ \Carbon\Carbon::parse($order->delivery_date)->format('d M Y') }}</span>
+        <!-- Order Info with Big Order Number -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+            <div style="flex: 1;">
+                <div class="info-line">
+                    <span>Order:</span>
+                    <span class="bold" style="font-size: 14px;">#{{ $order->order_number }}</span>
+                </div>
+                <div class="info-line">
+                    <span>Date:</span>
+                    <span>{{ $order->created_at->format('d M Y, H:i') }}</span>
+                </div>
+                <div class="info-line">
+                    <span>Customer:</span>
+                    <span>{{ $order->customer->name }}</span>
+                </div>
+                @if($order->customer->phone)
+                    <div class="info-line">
+                        <span>Phone:</span>
+                        <span>{{ $order->customer->phone }}</span>
+                    </div>
+                @endif
+                <div class="info-line">
+                    <span>Delivery:</span>
+                    <span>{{ \Carbon\Carbon::parse($order->delivery_date)->format('d M Y') }}</span>
+                </div>
+            </div>
+            <div style="border: 2px solid #000; padding: 8px 12px; text-align: center; min-width: 60px;">
+                <div style="font-size: 24px; font-weight: bold; line-height: 1;">{{ str_replace('#', '', $order->order_number) }}</div>
+            </div>
         </div>
 
         <div class="divider"></div>
 
         <!-- Items -->
         <div class="section-title center">ITEMS</div>
-        
+
         @foreach($order->orderItems as $item)
-        <div class="item-row">
-            <div class="item-name">{{ $item->service->name }}</div>
-        </div>
-        <div class="item-row" style="margin-top: -2px; padding-left: 5px;">
-            <div class="item-details">
-                <span>{{ $item->quantity }}x</span>
-                <span>{{ $item->service_type == 'wash_iron' ? 'W&I' : 'Iron' }}</span>
-                <span>{{ number_format($item->unit_price, 2) }}</span>
+            <div class="item-row">
+                <div class="item-name">{{ $item->service->name }}</div>
             </div>
-            <div class="bold">{{ number_format($item->subtotal, 2) }}</div>
-        </div>
+            <div class="item-row" style="margin-top: -2px; padding-left: 5px;">
+                <div class="item-details">
+                    <span>{{ $item->quantity }}x</span>
+                    <span>{{ $item->service_type == 'wash_iron' ? 'W&I' : 'Iron' }}</span>
+                    <span>{{ number_format($item->unit_price, 2) }}</span>
+                </div>
+                <div class="bold">{{ number_format($item->subtotal, 2) }}</div>
+            </div>
         @endforeach
 
         <div class="divider"></div>
@@ -193,20 +201,20 @@
             <span>AED {{ number_format($order->orderItems->sum('subtotal'), 2) }}</span>
         </div>
         @if($order->discount > 0)
-        <div class="summary-row">
-            <span>Discount</span>
-            <span>- AED {{ number_format($order->discount, 2) }}</span>
-        </div>
+            <div class="summary-row">
+                <span>Discount</span>
+                <span>- AED {{ number_format($order->discount, 2) }}</span>
+            </div>
         @endif
         @if($order->tax > 0)
-        <div class="summary-row">
-            <span>Tax</span>
-            <span>AED {{ number_format($order->tax, 2) }}</span>
-        </div>
+            <div class="summary-row">
+                <span>Tax</span>
+                <span>AED {{ number_format($order->tax, 2) }}</span>
+            </div>
         @endif
-        
+
         <div class="divider-double"></div>
-        
+
         <div class="total-row">
             <span>Total</span>
             <span>AED {{ number_format($order->total_amount, 2) }}</span>
@@ -240,21 +248,21 @@
             <div style="font-size: 9px; color: #666;">Scan to view order details</div>
             <div style="margin-top: 5px;">
                 <svg width="80" height="80" viewBox="0 0 100 100" style="margin: 0 auto; display: block;">
-                    <rect width="100" height="100" fill="white"/>
+                    <rect width="100" height="100" fill="white" />
                     <!-- Simple QR-like pattern -->
-                    <rect x="10" y="10" width="20" height="20" fill="black"/>
-                    <rect x="70" y="10" width="20" height="20" fill="black"/>
-                    <rect x="10" y="70" width="20" height="20" fill="black"/>
-                    <rect x="15" y="15" width="10" height="10" fill="white"/>
-                    <rect x="75" y="15" width="10" height="10" fill="white"/>
-                    <rect x="15" y="75" width="10" height="10" fill="white"/>
-                    <rect x="40" y="20" width="5" height="5" fill="black"/>
-                    <rect x="50" y="20" width="5" height="5" fill="black"/>
-                    <rect x="40" y="40" width="5" height="5" fill="black"/>
-                    <rect x="60" y="40" width="5" height="5" fill="black"/>
-                    <rect x="50" y="50" width="5" height="5" fill="black"/>
-                    <rect x="40" y="60" width="5" height="5" fill="black"/>
-                    <rect x="60" y="60" width="5" height="5" fill="black"/>
+                    <rect x="10" y="10" width="20" height="20" fill="black" />
+                    <rect x="70" y="10" width="20" height="20" fill="black" />
+                    <rect x="10" y="70" width="20" height="20" fill="black" />
+                    <rect x="15" y="15" width="10" height="10" fill="white" />
+                    <rect x="75" y="15" width="10" height="10" fill="white" />
+                    <rect x="15" y="75" width="10" height="10" fill="white" />
+                    <rect x="40" y="20" width="5" height="5" fill="black" />
+                    <rect x="50" y="20" width="5" height="5" fill="black" />
+                    <rect x="40" y="40" width="5" height="5" fill="black" />
+                    <rect x="60" y="40" width="5" height="5" fill="black" />
+                    <rect x="50" y="50" width="5" height="5" fill="black" />
+                    <rect x="40" y="60" width="5" height="5" fill="black" />
+                    <rect x="60" y="60" width="5" height="5" fill="black" />
                 </svg>
             </div>
             <div class="footer-text" style="margin-top: 5px;">{{ $order->order_number }}</div>
@@ -265,8 +273,8 @@
 
     <script>
         // Auto-print when loaded
-        window.onload = function() {
-            setTimeout(function() {
+        window.onload = function () {
+            setTimeout(function () {
                 window.print();
             }, 250);
         };

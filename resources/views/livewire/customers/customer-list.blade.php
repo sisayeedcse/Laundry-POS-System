@@ -69,7 +69,7 @@
     <div class="max-w-7xl mx-auto">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             @forelse ($this->customers as $customer)
-                <div class="border-b border-gray-200 hover:bg-purple-50 transition-colors duration-150">
+                <div wire:key="customer-{{ $customer->id }}" class="border-b border-gray-200 hover:bg-purple-50 transition-colors duration-150">
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             {{-- Left: Avatar + Info --}}
@@ -228,7 +228,9 @@
 
     {{-- Customer Details Modal --}}
     @if($showDetailsModal && $selectedCustomerId > 0)
-        @livewire('customers.customer-details', ['customerId' => $selectedCustomerId], key('customer-details-' . $selectedCustomerId . '-' . now()->timestamp))
+        <div wire:key="customer-details-{{ $selectedCustomerId }}">
+            @livewire('customers.customer-details', ['customerId' => $selectedCustomerId], key('customer-details-'.$selectedCustomerId))
+        </div>
     @endif
 
     {{-- Edit Customer Modal --}}

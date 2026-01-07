@@ -16,6 +16,7 @@ class POS extends Component
 {
     // Form fields
     public string $customerPhone = '';
+    public string $customerName = ''; // Optional customer name
     public ?int $selectedCustomerId = null;
     public array $items = []; // Multiple items array
     public ?int $selectedServiceId = null;
@@ -28,7 +29,6 @@ class POS extends Component
     
     // No customer modal needed
     public bool $showCustomerModal = false;
-    public string $customerName = '';
     public string $customerAddress = '';
 
     /**
@@ -93,6 +93,31 @@ class POS extends Component
                 $this->price = $this->serviceType === 'iron_only'
                     ? (float) $service->price_iron_only
                     : (float) $service->price_wash_iron;
+            }
+        }
+    }
+
+    /**
+     * Handle customer phone input - auto-fill order number for existing customers
+     */
+    public function updatedCustomerPhone($value): void
+    {
+        if (!empty($value)) {
+            $customer = Customer::where('phone', $value)->first();
+            
+            if ($customer) {
+                // Existing customer - auto-fill their details and order number
+                $this->selectedCustomerId = $customer->id;
+                $this->customerName = $customer->name;
+                
+                if ($customer->customer_order_number) {
+                    $this->customOrderId = $customer->customer_order_number;
+                }
+            } else {
+                // New customer - clear fields
+                $this->selectedCustomerId = null;
+                $this->customerName = '';
+                // customOrderId can be manually entered by user
             }
         }
     }
@@ -221,7 +246,7 @@ class POS extends Component
         // Validation
         $this->validate([
             'customerPhone' => 'required|string',
-            'customOrderId' => 'required|string|max:50|unique:orders,order_number',
+            'customOrderId' => 'required|string|max:50',
             'deliveryDate' => 'required|date|after_or_equal:today',
         ]);
 
@@ -230,21 +255,54 @@ class POS extends Component
             return;
         }
 
+        // Check if Order ID belongs to another customer
+        $existingCustomerWithOrderId = Customer::where('customer_order_number', $this->customOrderId)->first();
+        
+        if ($existingCustomerWithOrderId) {
+            // Order ID exists - check if it matches current customer
+            $currentCustomer = Customer::where('phone', $this->customerPhone)->first();
+            
+            if ($currentCustomer && $currentCustomer->id !== $existingCustomerWithOrderId->id) {
+                // Order ID belongs to a different customer
+                session()->flash('error', 'Order ID "' . $this->customOrderId . '" belongs to another customer (' . $existingCustomerWithOrderId->name . ', ' . $existingCustomerWithOrderId->phone . '). Please verify customer details or use a different Order ID.');
+                return;
+            }
+            
+            if (!$currentCustomer) {
+                // New customer trying to use existing order ID
+                session()->flash('error', 'Order ID "' . $this->customOrderId . '" is already assigned to customer ' . $existingCustomerWithOrderId->name . ' (' . $existingCustomerWithOrderId->phone . '). Please use a different Order ID for new customer.');
+                return;
+            }
+        }
+
         // Create or find customer when creating order
         if (!$this->selectedCustomerId) {
             // Check if customer exists
             $customer = Customer::where('phone', $this->customerPhone)->first();
             
             if (!$customer) {
-                // Create new customer
+                // New customer - create with custom order number
                 $customer = Customer::create([
-                    'name' => 'Customer-' . $this->customerPhone,
+                    'name' => !empty($this->customerName) ? $this->customerName : 'Customer-' . $this->customerPhone,
                     'phone' => $this->customerPhone,
+                    'customer_order_number' => $this->customOrderId,
                     'address' => null,
                 ]);
+            } else {
+                // Existing customer - use their existing order number
+                $this->customOrderId = $customer->customer_order_number;
             }
             
             $this->selectedCustomerId = $customer->id;
+        } else {
+            // Customer already selected - use their order number
+            $customer = Customer::find($this->selectedCustomerId);
+            if ($customer && $customer->customer_order_number) {
+                $this->customOrderId = $customer->customer_order_number;
+            } elseif ($customer) {
+                // Customer exists but no order number - assign one
+                $customer->update(['customer_order_number' => $this->customOrderId]);
+            }
         }
 
         // Calculate total
