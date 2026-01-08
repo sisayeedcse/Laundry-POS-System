@@ -19,6 +19,7 @@ class OrderItem extends Model
         'service_id',
         'quantity',
         'service_type',
+        'finish_type',
         'unit_price',
         'subtotal',
         'color',

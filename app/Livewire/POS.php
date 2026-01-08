@@ -394,6 +394,7 @@ class POS extends Component
                 'service_id' => $item['service_id'],
                 'quantity' => $item['quantity'],
                 'service_type' => $item['service_type'],
+                'finish_type' => $item['finish_type'] ?? 'hanger',
                 'unit_price' => $item['unit_price'],
                 'subtotal' => $item['subtotal'],
             ]);

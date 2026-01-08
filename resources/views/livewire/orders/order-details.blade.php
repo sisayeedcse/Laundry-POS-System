@@ -224,6 +224,9 @@
                                                         Type</th>
                                                     <th
                                                         class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                                        Finish</th>
+                                                    <th
+                                                        class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                                         Qty</th>
                                                     <th
                                                         class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
@@ -242,6 +245,12 @@
                                                             <span
                                                                 class="inline-flex px-2 py-1 text-xs font-semibold rounded {{ $item->service_type === 'urgent' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
                                                                 {{ ucfirst($item->service_type) }}
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            <span
+                                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded {{ $item->finish_type === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                                                {{ $item->finish_type === 'hanger' ? '👔 Hanger' : '📦 Fold' }}
                                                             </span>
                                                         </td>
                                                         <td class="px-4 py-3 text-center text-sm text-gray-900">
