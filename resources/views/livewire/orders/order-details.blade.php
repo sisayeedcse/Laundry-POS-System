@@ -83,7 +83,7 @@
                                         <div>
                                             <p class="text-sm text-gray-500">Payment Method</p>
                                             <p class="text-base font-semibold text-gray-900 capitalize">
-                                                {{ str_replace('_', ' ', $this->order->payment_method) }}</p>
+                                                {{ $this->order->payment_method ? str_replace('_', ' ', $this->order->payment_method) : 'Not Paid' }}</p>
                                         </div>
                                         <div>
                                             <p class="text-sm text-gray-500">Status</p>
@@ -100,12 +100,46 @@
                                             </span>
                                         </div>
                                     </div>
-                                    @if($this->order->notes)
-                                        <div class="mt-4 pt-4 border-t border-gray-200">
-                                            <p class="text-sm text-gray-500">Notes</p>
-                                            <p class="text-base text-gray-900 mt-1">{{ $this->order->notes }}</p>
+                                    
+                                    {{-- Order Notes Section --}}
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-sm font-semibold text-gray-700">Order Notes</p>
+                                            @if(!$editingNotes)
+                                                <button wire:click="toggleEditNotes" 
+                                                    class="text-xs text-purple-600 hover:text-purple-800 font-medium flex items-center">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                    Edit Notes
+                                                </button>
+                                            @endif
                                         </div>
-                                    @endif
+                                        
+                                        @if($editingNotes)
+                                            <div class="space-y-2">
+                                                <textarea wire:model="orderNotes" rows="4"
+                                                    placeholder="Add notes for this order (optional)"
+                                                    class="w-full rounded-lg border-2 border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-200"></textarea>
+                                                <div class="flex items-center gap-2">
+                                                    <button wire:click="saveNotes"
+                                                        class="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                                        Save Notes
+                                                    </button>
+                                                    <button wire:click="toggleEditNotes"
+                                                        class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors">
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @else
+                                            @if($this->order->notes)
+                                                <p class="text-sm text-gray-900 mt-1 whitespace-pre-wrap">{{ $this->order->notes }}</p>
+                                            @else
+                                                <p class="text-sm text-gray-400 italic mt-1">No notes added yet</p>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </div>
 
                                 <!-- Customer Information -->
@@ -259,24 +293,30 @@
                                         </div>
                                         <div class="flex justify-between text-sm">
                                             <span class="text-gray-600">Payment Method</span>
-                                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold
-                                                        @if($this->order->payment_method === 'cash') bg-emerald-100 text-emerald-800
-                                                        @else bg-indigo-100 text-indigo-800
-                                                        @endif">
-                                                @if($this->order->payment_method === 'cash')
-                                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                    </svg>
-                                                @else
-                                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                                    </svg>
-                                                @endif
-                                                {{ strtoupper($this->order->payment_method) }}
-                                            </span>
+                                            @if($this->order->payment_method)
+                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold
+                                                            @if($this->order->payment_method === 'cash') bg-emerald-100 text-emerald-800
+                                                            @else bg-indigo-100 text-indigo-800
+                                                            @endif">
+                                                    @if($this->order->payment_method === 'cash')
+                                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                    @else
+                                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                                        </svg>
+                                                    @endif
+                                                    {{ strtoupper($this->order->payment_method) }}
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-600">
+                                                    NOT PAID
+                                                </span>
+                                            @endif
                                         </div>
                                         <div class="pt-3 border-t border-purple-200">
-                                            <div class="flex justify-between">
+                                            <div class="flex justify-between items-center mb-2">
                                                 <span class="text-base font-semibold text-gray-900">Payment Status</span>
                                                 <span class="text-lg font-bold 
                                                     @if($this->order->payment_status === 'paid') text-green-600
@@ -286,6 +326,21 @@
                                                     {{ strtoupper($this->order->payment_status) }}
                                                 </span>
                                             </div>
+                                            
+                                            {{-- Toggle Payment Status Button --}}
+                                            <button wire:click="togglePaymentStatus" 
+                                                class="w-full mt-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200
+                                                    @if($this->order->payment_status === 'paid')
+                                                        bg-red-100 text-red-700 hover:bg-red-200 border border-red-300
+                                                    @else
+                                                        bg-green-100 text-green-700 hover:bg-green-200 border border-green-300
+                                                    @endif">
+                                                @if($this->order->payment_status === 'paid')
+                                                    🔓 Mark as Unpaid
+                                                @else
+                                                    💰 Mark as Paid
+                                                @endif
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

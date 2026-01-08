@@ -7,7 +7,6 @@ namespace App\Livewire\Orders;
 use App\Models\Order;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 
 class OrderDetails extends Component
@@ -16,6 +15,8 @@ class OrderDetails extends Component
     public bool $showModal = false;
     public bool $showPaymentModal = false;
     public string $selectedPaymentMethod = 'cash';
+    public bool $editingNotes = false;
+    public string $orderNotes = '';
 
     /**
      * Mount component
@@ -24,13 +25,13 @@ class OrderDetails extends Component
     {
         $this->orderId = $orderId;
         $this->showModal = true;
+        $this->orderNotes = $this->order->notes ?? '';
     }
 
     /**
      * Get order with all relationships
      */
-    #[Computed]
-    public function order()
+    public function getOrderProperty()
     {
         return Order::with([
             'customer',
@@ -61,9 +62,6 @@ class OrderDetails extends Component
         } else {
             session()->flash('success', 'Order status updated to ' . ucfirst($status) . '!');
         }
-        
-        // Refresh the computed property
-        unset($this->order);
     }
 
     /**
@@ -79,10 +77,36 @@ class OrderDetails extends Component
         ]);
 
         $this->showPaymentModal = false;
+        
         session()->flash('success', 'Payment completed via ' . strtoupper($this->selectedPaymentMethod) . '!');
         
-        // Refresh the computed property
-        unset($this->order);
+        // Dispatch event to refresh other components
+        $this->dispatch('order-updated');
+    }
+
+    /**
+     * Toggle payment status between paid and pending
+     */
+    public function togglePaymentStatus(): void
+    {
+        $order = Order::findOrFail($this->orderId);
+        
+        if ($order->payment_status === 'paid') {
+            // Mark as unpaid - clear payment method since payment is being reversed
+            $order->update([
+                'payment_status' => 'pending',
+                'payment_method' => null, // Clear payment method when marking as unpaid
+            ]);
+            
+            session()->flash('success', 'Order marked as UNPAID. Amount will appear in Due Payments and will not be counted in revenue.');
+            
+            // Dispatch event to refresh other components
+            $this->dispatch('order-updated');
+        } else {
+            // Mark as paid
+            $this->showPaymentModal = true;
+            return;
+        }
     }
 
     /**
@@ -91,6 +115,32 @@ class OrderDetails extends Component
     public function closePaymentModal(): void
     {
         $this->showPaymentModal = false;
+    }
+
+    /**
+     * Toggle notes editing mode
+     */
+    public function toggleEditNotes(): void
+    {
+        if ($this->editingNotes) {
+            // Cancel editing - reset to original
+            $this->orderNotes = $this->order->notes ?? '';
+            $this->editingNotes = false;
+        } else {
+            $this->editingNotes = true;
+        }
+    }
+
+    /**
+     * Save notes
+     */
+    public function saveNotes(): void
+    {
+        $order = Order::findOrFail($this->orderId);
+        $order->update(['notes' => $this->orderNotes]);
+        
+        $this->editingNotes = false;
+        session()->flash('success', 'Notes updated successfully!');
     }
 
     /**
@@ -159,8 +209,6 @@ class OrderDetails extends Component
     {
         $this->showPaymentModal = false;
         session()->flash('success', 'Payment recorded successfully!');
-        // Refresh the order data
-        unset($this->order);
     }
 
     /**

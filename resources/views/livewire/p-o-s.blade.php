@@ -154,7 +154,7 @@
                                     <p class="text-sm text-gray-500">Service</p>
                                     <span
                                         class="inline-flex rounded-full px-3 py-1 text-sm font-bold
-                                                    {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                                        {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
                                         {{ $item['service_type'] === 'wash_iron' ? 'Wash & Iron' : 'Iron Only' }}
                                     </span>
                                 </div>
@@ -184,21 +184,57 @@
         </div>
     </div>
 
-    {{-- Step 3: Notes (Optional) --}}
+    {{-- Step 3: Notes & Discount (Optional) --}}
     <div class="max-w-6xl mx-auto mb-6">
         <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 Step 3: Special Notes (Optional)</h2>
-            <textarea wire:model="notes" rows="3"
-                placeholder="Any special instructions? (e.g., Extra starch, no hangers, etc.)"
-                class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-base focus:border-purple-500 focus:ring-2 focus:ring-purple-200"></textarea>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 Step 3: Additional Details (Optional)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-lg font-semibold text-gray-700 mb-2">Special Notes</label>
+                    <textarea wire:model="notes" rows="4"
+                        placeholder="Any special instructions? (e.g., Extra starch, no hangers, etc.)"
+                        class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-base focus:border-purple-500 focus:ring-2 focus:ring-purple-200"></textarea>
+                </div>
+                <div>
+                    <label class="block text-lg font-semibold text-gray-700 mb-2">💰 Discount (Optional)</label>
+                    <input type="number" wire:model.live="discount" step="0.01" min="0"
+                        placeholder="Enter discount amount in AED"
+                        class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg font-semibold text-green-600 focus:border-green-500 focus:ring-2 focus:ring-green-200" />
+                    <p class="mt-2 text-sm text-gray-600">
+                        <span class="inline-block">Maximum discount available:
+                            <strong>{{ number_format(array_sum(array_column($items, 'subtotal')), 2) }}
+                                AED</strong></span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
     {{-- Total & Submit --}}
     <div class="max-w-6xl mx-auto">
         <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl p-8">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-8">
                 <div>
+                    {{-- Subtotal --}}
+                    <div class="mb-4">
+                        <p class="text-white text-sm opacity-75">Subtotal</p>
+                        <p class="text-white text-2xl font-bold">
+                            {{ number_format(array_sum(array_column($items, 'subtotal')), 2) }} <span
+                                class="text-lg">AED</span>
+                        </p>
+                    </div>
+
+                    {{-- Discount (if any) --}}
+                    @if($discount > 0)
+                        <div class="mb-4 pb-4 border-b border-white border-opacity-30">
+                            <p class="text-white text-sm opacity-75">Discount</p>
+                            <p class="text-green-300 text-lg font-bold">
+                                -{{ number_format($discount, 2) }} <span class="text-sm">AED</span>
+                            </p>
+                        </div>
+                    @endif
+
+                    {{-- Total Amount --}}
                     <p class="text-white text-lg opacity-90 mb-2">Total Amount</p>
                     <p class="text-white text-5xl font-bold">
                         {{ number_format($this->totalAmount, 2) }} <span class="text-2xl">AED</span>
@@ -235,9 +271,16 @@
                     <h2 class="text-3xl font-bold text-gray-900 mb-2">💳 Select Payment Method</h2>
                     <p class="text-lg text-gray-600">Choose how the customer will pay</p>
                     <div class="mt-4 inline-block bg-purple-50 rounded-lg px-6 py-3">
-                        <p class="text-purple-900 text-2xl font-bold">
-                            Total: {{ number_format($this->totalAmount, 2) }} QAR
-                        </p>
+                        <div class="text-center">
+                            @if($discount > 0)
+                                <p class="text-sm text-gray-600 mb-1">Subtotal:
+                                    {{ number_format(array_sum(array_column($items, 'subtotal')), 2) }} QAR | Discount:
+                                    -{{ number_format($discount, 2) }} QAR</p>
+                            @endif
+                            <p class="text-purple-900 text-2xl font-bold">
+                                Total: {{ number_format($this->totalAmount, 2) }} QAR
+                            </p>
+                        </div>
                     </div>
                 </div>
 

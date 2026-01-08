@@ -60,7 +60,7 @@ class Reports extends Component
 
         return [
             'total_orders' => $totalQuery->count(),
-            'total_revenue' => $revenueQuery->sum('total_amount'),
+            'total_revenue' => $revenueQuery->where('payment_status', 'paid')->sum('total_amount'), // Only count paid orders
             'paid_orders' => $paidQuery->where('payment_status', 'paid')->count(),
             'pending_orders' => $pendingQuery->where('payment_status', 'pending')->count(),
             'delivered_orders' => $deliveredQuery->where('status', 'delivered')->count(),
@@ -109,6 +109,7 @@ class Reports extends Component
         $query = DB::table('order_items')
             ->join('services', 'order_items.service_id', '=', 'services.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.payment_status', 'paid') // Only count paid orders
             ->select('services.name', DB::raw('SUM(order_items.quantity) as total_quantity'), DB::raw('SUM(order_items.unit_price * order_items.quantity) as total_revenue'))
             ->groupBy('services.id', 'services.name');
 

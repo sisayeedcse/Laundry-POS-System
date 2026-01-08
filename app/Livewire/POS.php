@@ -26,6 +26,7 @@ class POS extends Component
     public string $serviceType = 'wash_iron';
     public ?string $deliveryDate = null;
     public string $notes = '';
+    public float $discount = 0; // Discount amount (optional)
     
     // Payment modal
     public bool $showPaymentModal = false;
@@ -272,11 +273,12 @@ class POS extends Component
     }
 
     /**
-     * Get total amount for all items
+     * Get total amount for all items (minus discount)
      */
     public function getTotalAmountProperty(): float
     {
-        return array_sum(array_column($this->items, 'subtotal'));
+        $subtotal = array_sum(array_column($this->items, 'subtotal'));
+        return max(0, $subtotal - $this->discount);
     }
 
     /**
@@ -373,7 +375,7 @@ class POS extends Component
             'customer_id' => $this->selectedCustomerId,
             'order_number' => $this->customOrderId,
             'total_amount' => $totalAmount,
-            'discount' => 0,
+            'discount' => $this->discount,
             'tax' => 0,
             'status' => 'pending',
             'payment_status' => $paymentStatus,
@@ -515,6 +517,7 @@ class POS extends Component
         $this->price = 0;
         $this->serviceType = 'wash_iron';
         $this->notes = '';
+        $this->discount = 0;
         $this->deliveryDate = now()->addDay()->format('Y-m-d');
     }
 

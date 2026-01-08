@@ -115,6 +115,7 @@ class Dashboard extends Component
     public function dailyFinancials()
     {
         $dailyRevenue = Order::whereBetween('created_at', [$this->startDate, $this->endDate])
+            ->where('payment_status', 'paid') // Only count paid orders in revenue
             ->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(total_amount) as revenue')

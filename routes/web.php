@@ -65,4 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('settings')->name('settings.')->middleware('role:admin')->group(function () {
         Route::get('/', \App\Livewire\Settings::class)->name('index');
     });
+
+    // Profile Settings Routes - All roles
+    Route::get('/profile', \App\Livewire\Settings\Profile::class)->name('profile');
 });
