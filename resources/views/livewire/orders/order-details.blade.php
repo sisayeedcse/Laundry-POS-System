@@ -278,8 +278,12 @@
                                         <div class="pt-3 border-t border-purple-200">
                                             <div class="flex justify-between">
                                                 <span class="text-base font-semibold text-gray-900">Payment Status</span>
-                                                <span class="text-lg font-bold text-green-600">
-                                                    PAID
+                                                <span class="text-lg font-bold 
+                                                    @if($this->order->payment_status === 'paid') text-green-600
+                                                    @elseif($this->order->payment_status === 'partial') text-orange-600
+                                                    @else text-red-600
+                                                    @endif">
+                                                    {{ strtoupper($this->order->payment_status) }}
                                                 </span>
                                             </div>
                                         </div>

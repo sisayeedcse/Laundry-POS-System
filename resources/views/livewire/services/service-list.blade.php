@@ -64,7 +64,8 @@
         @if($this->services->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
                 @foreach($this->services as $service)
-                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <div wire:key="service-{{ $service->id }}"
+                        class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                         {{-- Service Image --}}
                         <div class="relative h-48 bg-gradient-to-br from-purple-100 to-indigo-100">
                             @if($service->image_path)

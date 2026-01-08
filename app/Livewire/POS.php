@@ -27,6 +27,9 @@ class POS extends Component
     public ?string $deliveryDate = null;
     public string $notes = '';
     
+    // Payment modal
+    public bool $showPaymentModal = false;
+    
     // No customer modal needed
     public bool $showCustomerModal = false;
     public string $customerAddress = '';
@@ -64,7 +67,45 @@ class POS extends Component
     #[Computed]
     public function services()
     {
-        return Service::active()->orderBy('category')->orderBy('name')->get();
+        // Define custom order for best-selling items
+        $customOrder = [
+            'shirt' => 1,
+            'tshirt' => 2,
+            't-shirt' => 2,
+            'pant' => 3,
+            'u pant' => 4,
+            'upant' => 4,
+            'thobe' => 5,
+            'salwar kameez' => 6,
+            'baniyan' => 7,
+            'coat pants' => 8,
+            'coat only' => 9,
+            'jacket' => 10,
+            'sweter' => 11,
+            'sweater' => 11,
+            'apron' => 12,
+            'blanket big' => 13,
+            'blanket medium' => 14,
+            'blanket small' => 15,
+        ];
+        
+        $services = Service::active()->get();
+        
+        // Sort services by custom order
+        return $services->sort(function ($a, $b) use ($customOrder) {
+            $aName = strtolower($a->name);
+            $bName = strtolower($b->name);
+            
+            $aOrder = $customOrder[$aName] ?? 999;
+            $bOrder = $customOrder[$bName] ?? 999;
+            
+            if ($aOrder === $bOrder) {
+                // If both have same order or both not in list, sort alphabetically
+                return strcmp($aName, $bName);
+            }
+            
+            return $aOrder <=> $bOrder;
+        })->values();
     }
     
     /**
@@ -239,7 +280,7 @@ class POS extends Component
     }
 
     /**
-     * Create new order (Entry button)
+     * Create new order (Entry button) - Shows payment modal
      */
     public function createOrder(): void
     {
@@ -275,6 +316,16 @@ class POS extends Component
             }
         }
 
+        // Show payment selection modal
+        $this->showPaymentModal = true;
+    }
+
+    /**
+     * Process order with selected payment method
+     */
+    public function processOrderWithPayment(string $paymentMethod): void
+    {
+
         // Create or find customer when creating order
         if (!$this->selectedCustomerId) {
             // Check if customer exists
@@ -308,6 +359,15 @@ class POS extends Component
         // Calculate total
         $totalAmount = $this->totalAmount;
 
+        // Determine payment status based on payment method
+        $paymentStatus = 'pending';
+        $paymentMethodValue = null;
+        
+        if ($paymentMethod === 'card' || $paymentMethod === 'cash') {
+            $paymentStatus = 'paid';
+            $paymentMethodValue = $paymentMethod;
+        }
+
         // Create order with custom order ID (required)
         $order = Order::create([
             'customer_id' => $this->selectedCustomerId,
@@ -316,8 +376,8 @@ class POS extends Component
             'discount' => 0,
             'tax' => 0,
             'status' => 'pending',
-            'payment_status' => 'pending',
-            'payment_method' => null,
+            'payment_status' => $paymentStatus,
+            'payment_method' => $paymentMethodValue,
             'delivery_date' => $this->deliveryDate,
             'notes' => $this->notes,
         ]);
@@ -337,7 +397,15 @@ class POS extends Component
         // Update customer total orders
         $order->customer->increment('total_orders');
 
-        session()->flash('success', 'Order #' . $order->order_number . ' created successfully! Status: Pending');
+        // Close payment modal
+        $this->showPaymentModal = false;
+
+        // Success message based on payment method
+        $paymentMsg = $paymentMethod === 'due' 
+            ? 'Payment: Due' 
+            : 'Payment: ' . ucfirst($paymentMethod) . ' (Paid)';
+        
+        session()->flash('success', 'Order #' . $order->order_number . ' created successfully! ' . $paymentMsg);
 
         // Reset form
         $this->resetForm();

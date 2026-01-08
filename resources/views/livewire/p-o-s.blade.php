@@ -31,7 +31,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                     <label class="block text-lg font-semibold text-gray-700 mb-2">🔢 Order ID *</label>
-                    <input type="text" wire:model="customOrderId" 
+                    <input type="text" wire:model="customOrderId"
                         placeholder="{{ $selectedCustomerId && $this->selectedCustomer?->customer_order_number ? 'Auto-filled for existing customer' : 'Enter Order ID' }}"
                         class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg font-bold focus:border-purple-500 focus:ring-2 focus:ring-purple-200 {{ $selectedCustomerId && $this->selectedCustomer?->customer_order_number ? 'bg-gray-100' : '' }}"
                         {{ $selectedCustomerId && $this->selectedCustomer?->customer_order_number ? 'readonly' : '' }} />
@@ -154,7 +154,7 @@
                                     <p class="text-sm text-gray-500">Service</p>
                                     <span
                                         class="inline-flex rounded-full px-3 py-1 text-sm font-bold
-                                                {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                                    {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
                                         {{ $item['service_type'] === 'wash_iron' ? 'Wash & Iron' : 'Iron Only' }}
                                     </span>
                                 </div>
@@ -215,9 +215,101 @@
 
         <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4">
             <p class="text-blue-800 text-base">
-                💡 <strong>Tip:</strong> Order will be saved as <strong>PENDING</strong>. Payment collected when
-                customer picks up.
+                💡 <strong>Tip:</strong> Select payment method after clicking Create Order button.
             </p>
         </div>
     </div>
+
+    {{-- Payment Selection Modal --}}
+    @if($showPaymentModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl p-8">
+                {{-- Header --}}
+                <div class="text-center mb-8">
+                    <div class="inline-block p-4 bg-purple-100 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">💳 Select Payment Method</h2>
+                    <p class="text-lg text-gray-600">Choose how the customer will pay</p>
+                    <div class="mt-4 inline-block bg-purple-50 rounded-lg px-6 py-3">
+                        <p class="text-purple-900 text-2xl font-bold">
+                            Total: {{ number_format($this->totalAmount, 2) }} QAR
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Payment Options --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    {{-- Card Payment --}}
+                    <button type="button" wire:click="processOrderWithPayment('card')"
+                        class="group bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-4 border-blue-300 hover:border-blue-500 rounded-2xl p-8 transition-all transform hover:scale-105 hover:shadow-2xl">
+                        <div class="text-center">
+                            <div
+                                class="inline-block p-4 bg-blue-500 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-blue-900 mb-2">💳 Card</h3>
+                            <p class="text-blue-700 text-sm mb-4">Payment via Card</p>
+                            <div class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full inline-block">
+                                ✓ PAID
+                            </div>
+                        </div>
+                    </button>
+
+                    {{-- Cash Payment --}}
+                    <button type="button" wire:click="processOrderWithPayment('cash')"
+                        class="group bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 border-4 border-green-300 hover:border-green-500 rounded-2xl p-8 transition-all transform hover:scale-105 hover:shadow-2xl">
+                        <div class="text-center">
+                            <div
+                                class="inline-block p-4 bg-green-500 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-green-900 mb-2">💵 Cash</h3>
+                            <p class="text-green-700 text-sm mb-4">Payment via Cash</p>
+                            <div class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full inline-block">
+                                ✓ PAID
+                            </div>
+                        </div>
+                    </button>
+
+                    {{-- Due Payment --}}
+                    <button type="button" wire:click="processOrderWithPayment('due')"
+                        class="group bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 border-4 border-red-300 hover:border-red-500 rounded-2xl p-8 transition-all transform hover:scale-105 hover:shadow-2xl">
+                        <div class="text-center">
+                            <div
+                                class="inline-block p-4 bg-red-500 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-red-900 mb-2">⏰ Due</h3>
+                            <p class="text-red-700 text-sm mb-4">Pay on Delivery</p>
+                            <div
+                                class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full inline-block">
+                                ⏳ PENDING
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                {{-- Cancel Button --}}
+                <div class="text-center">
+                    <button type="button" wire:click="$set('showPaymentModal', false)"
+                        class="px-8 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-xl font-semibold transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
