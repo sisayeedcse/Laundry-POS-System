@@ -57,8 +57,9 @@
 
                 <div>
                     <label class="block text-lg font-semibold text-gray-700 mb-2">📱 Phone Number *</label>
-                    <input type="text" wire:model.live="customerPhone" wire:blur="searchCustomer"
-                        placeholder="0501234567"
+                    <input type="tel" wire:model.live="customerPhone" wire:blur="searchCustomer"
+                        placeholder="0501234567" pattern="[0-9]*" inputmode="numeric"
+                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                         class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" />
                     @if($this->selectedCustomer)
                         <p class="mt-2 text-base font-medium text-green-600">✓ Existing: {{ $this->selectedCustomer->name }}
@@ -154,7 +155,7 @@
                                     <p class="text-sm text-gray-500">Service</p>
                                     <span
                                         class="inline-flex rounded-full px-3 py-1 text-sm font-bold
-                                                        {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                                            {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
                                         {{ $item['service_type'] === 'wash_iron' ? 'Wash & Iron' : 'Iron Only' }}
                                     </span>
                                 </div>
@@ -275,7 +276,8 @@
                             @if($discount > 0)
                                 <p class="text-sm text-gray-600 mb-1">Subtotal:
                                     {{ number_format(array_sum(array_column($items, 'subtotal')), 2) }} QAR | Discount:
-                                    -{{ number_format($discount, 2) }} QAR</p>
+                                    -{{ number_format($discount, 2) }} QAR
+                                </p>
                             @endif
                             <p class="text-purple-900 text-2xl font-bold">
                                 Total: {{ number_format($this->totalAmount, 2) }} QAR
