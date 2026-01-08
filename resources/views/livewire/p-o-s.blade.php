@@ -59,6 +59,7 @@
                     <label class="block text-lg font-semibold text-gray-700 mb-2">📱 Phone Number *</label>
                     <input type="tel" wire:model.live="customerPhone" wire:blur="searchCustomer"
                         placeholder="0501234567" pattern="[0-9]*" inputmode="numeric"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                         onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                         class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" />
                     @if($this->selectedCustomer)
@@ -94,7 +95,7 @@
             {{-- Simple Add Item Card --}}
             <div
                 class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6 border-2 border-dashed border-purple-300">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                     <div class="lg:col-span-2">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Item</label>
                         <select wire:model.live="selectedServiceId"
@@ -114,6 +115,15 @@
                             class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
                             <option value="wash_iron">🧼 Wash & Iron</option>
                             <option value="iron_only">🔥 Iron Only</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-base font-semibold text-gray-700 mb-2">Finish</label>
+                        <select wire:model.live="finishType"
+                            class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
+                            <option value="hanger">👔 Hanger</option>
+                            <option value="fold">📦 Fold</option>
                         </select>
                     </div>
 
@@ -146,7 +156,7 @@
                 @forelse($items as $index => $item)
                     <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-purple-300 transition-all">
                         <div class="flex items-center justify-between">
-                            <div class="flex-1 grid grid-cols-4 gap-4">
+                            <div class="flex-1 grid grid-cols-5 gap-4">
                                 <div>
                                     <p class="text-sm text-gray-500">Item</p>
                                     <p class="text-lg font-bold text-gray-800">{{ $item['service_name'] }}</p>
@@ -155,8 +165,16 @@
                                     <p class="text-sm text-gray-500">Service</p>
                                     <span
                                         class="inline-flex rounded-full px-3 py-1 text-sm font-bold
-                                                            {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                                                {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
                                         {{ $item['service_type'] === 'wash_iron' ? 'Wash & Iron' : 'Iron Only' }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Finish</p>
+                                    <span
+                                        class="inline-flex rounded-full px-3 py-1 text-sm font-bold
+                                                                {{ $item['finish_type'] === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                        {{ $item['finish_type'] === 'hanger' ? '👔 Hanger' : '📦 Fold' }}
                                     </span>
                                 </div>
                                 <div>

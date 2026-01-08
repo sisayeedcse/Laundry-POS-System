@@ -68,7 +68,9 @@
                                     <label for="edit-phone" class="block text-sm font-medium text-gray-700 mb-1">
                                         Phone Number <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="edit-phone" wire:model="phone"
+                                    <input type="tel" id="edit-phone" wire:model="phone" pattern="[0-9]*"
+                                        inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                         class="block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 @error('phone') border-red-500 @enderror"
                                         placeholder="Enter phone number">
                                     @error('phone')

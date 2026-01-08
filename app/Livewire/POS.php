@@ -24,6 +24,7 @@ class POS extends Component
     public int $quantity = 1;
     public float $price = 0;
     public string $serviceType = 'wash_iron';
+    public string $finishType = 'hanger';
     public ?string $deliveryDate = null;
     public string $notes = '';
     public float $discount = 0; // Discount amount (optional)
@@ -251,6 +252,7 @@ class POS extends Component
             'service_id' => $this->selectedServiceId,
             'service_name' => $service->name,
             'service_type' => $this->serviceType,
+            'finish_type' => $this->finishType,
             'quantity' => $this->quantity,
             'unit_price' => $this->price,
             'subtotal' => $this->price * $this->quantity,
@@ -261,6 +263,7 @@ class POS extends Component
         $this->quantity = 1;
         $this->price = 0;
         $this->serviceType = 'wash_iron';
+        $this->finishType = 'hanger';
     }
 
     /**
