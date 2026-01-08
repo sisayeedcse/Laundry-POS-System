@@ -69,20 +69,23 @@
     <div class="max-w-7xl mx-auto">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             @forelse ($this->customers as $customer)
-                <div wire:key="customer-{{ $customer->id }}" class="border-b border-gray-200 hover:bg-purple-50 transition-colors duration-150">
+                <div wire:key="customer-{{ $customer->id }}"
+                    class="border-b border-gray-200 hover:bg-purple-50 transition-colors duration-150">
                     <div class="p-6">
                         <div class="flex items-center justify-between">
                             {{-- Left: Avatar + Info --}}
                             <div class="flex items-center space-x-6 flex-1">
                                 {{-- Avatar --}}
                                 <div class="relative flex-shrink-0">
-                                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                                    <div
+                                        class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
                                         <span class="text-2xl font-bold text-white">
                                             {{ strtoupper(substr($customer->name, 0, 1)) }}
                                         </span>
                                     </div>
                                     @if ($customer->isRegular)
-                                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white" title="Regular Customer">
+                                        <div class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white"
+                                            title="Regular Customer">
                                             <span class="text-xs">⭐</span>
                                         </div>
                                     @endif
@@ -94,11 +97,13 @@
                                     <div class="flex items-center space-x-3 mb-2">
                                         <h3 class="text-xl font-bold text-gray-900 truncate">{{ $customer->name }}</h3>
                                         @if ($customer->is_active)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">
                                                 ✓ Active
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-300">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-300">
                                                 ✗ Inactive
                                             </span>
                                         @endif
@@ -108,8 +113,10 @@
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         {{-- Phone --}}
                                         <div class="flex items-center space-x-2">
-                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div
+                                                class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                                 </svg>
@@ -117,13 +124,19 @@
                                             <div class="min-w-0">
                                                 <p class="text-xs text-gray-500">Phone</p>
                                                 <p class="text-sm font-semibold text-gray-900">{{ $customer->phone }}</p>
+                                                @if($customer->customer_order_number)
+                                                    <p class="text-xs text-gray-700 mt-1"><strong>Order ID:
+                                                            {{ $customer->customer_order_number }}</strong></p>
+                                                @endif
                                             </div>
                                         </div>
 
                                         {{-- Address --}}
                                         <div class="flex items-center space-x-2">
-                                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div
+                                                class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -132,21 +145,25 @@
                                             </div>
                                             <div class="min-w-0">
                                                 <p class="text-xs text-gray-500">Address</p>
-                                                <p class="text-sm font-semibold text-gray-900 truncate">{{ $customer->address ?? 'No address' }}</p>
+                                                <p class="text-sm font-semibold text-gray-900 truncate">
+                                                    {{ $customer->address ?? 'No address' }}</p>
                                             </div>
                                         </div>
 
                                         {{-- Total Orders --}}
                                         <div class="flex items-center space-x-2">
-                                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div
+                                                class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                                 </svg>
                                             </div>
                                             <div class="min-w-0">
                                                 <p class="text-xs text-gray-500">Orders</p>
-                                                <p class="text-sm font-bold text-purple-600">{{ $customer->total_orders }} orders</p>
+                                                <p class="text-sm font-bold text-purple-600">{{ $customer->total_orders }}
+                                                    orders</p>
                                             </div>
                                         </div>
                                     </div>
@@ -167,7 +184,7 @@
                                 </button>
 
                                 <button wire:click="toggleStatus({{ $customer->id }})"
-                                    class="p-2.5 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-lg transition-colors" 
+                                    class="p-2.5 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-lg transition-colors"
                                     title="Toggle Status">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -177,7 +194,7 @@
 
                                 <button wire:click="deleteCustomer({{ $customer->id }})"
                                     wire:confirm="Are you sure you want to delete this customer?"
-                                    class="p-2.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors" 
+                                    class="p-2.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
                                     title="Delete Customer">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -229,7 +246,7 @@
     {{-- Customer Details Modal --}}
     @if($showDetailsModal && $selectedCustomerId > 0)
         <div wire:key="customer-details-{{ $selectedCustomerId }}">
-            @livewire('customers.customer-details', ['customerId' => $selectedCustomerId], key('customer-details-'.$selectedCustomerId))
+            @livewire('customers.customer-details', ['customerId' => $selectedCustomerId], key('customer-details-' . $selectedCustomerId))
         </div>
     @endif
 
