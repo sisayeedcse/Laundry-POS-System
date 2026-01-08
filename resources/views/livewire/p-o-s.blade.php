@@ -152,49 +152,44 @@
             </div>
 
             {{-- Added Items List --}}
-            <div class="space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @forelse($items as $index => $item)
                     <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-purple-300 transition-all">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1 grid grid-cols-5 gap-4">
-                                <div>
+                        <div class="space-y-3">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
                                     <p class="text-sm text-gray-500">Item</p>
-                                    <p class="text-lg font-bold text-gray-800">{{ $item['service_name'] }}</p>
+                                    <p class="text-base font-bold text-gray-800">{{ $item['service_name'] }}</p>
                                 </div>
+                                <button type="button" wire:click="removeItem({{ $index }})"
+                                    class="rounded-lg bg-red-500 p-2 text-white hover:bg-red-600 flex-shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex rounded-full px-2 py-1 text-xs font-bold {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                    {{ $item['service_type'] === 'wash_iron' ? '🧼 W&I' : '🔥 Iron' }}
+                                </span>
+                                <span class="inline-flex rounded-full px-2 py-1 text-xs font-bold {{ $item['finish_type'] === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                    {{ $item['finish_type'] === 'hanger' ? '👔' : '📦' }}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-gray-300">
                                 <div>
-                                    <p class="text-sm text-gray-500">Service</p>
-                                    <span
-                                        class="inline-flex rounded-full px-3 py-1 text-sm font-bold
-                                                                {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
-                                        {{ $item['service_type'] === 'wash_iron' ? 'Wash & Iron' : 'Iron Only' }}
-                                    </span>
+                                    <p class="text-xs text-gray-500">Quantity</p>
+                                    <p class="text-sm font-bold text-gray-800">{{ $item['quantity'] }} pcs</p>
                                 </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Finish</p>
-                                    <span
-                                        class="inline-flex rounded-full px-3 py-1 text-sm font-bold
-                                                                {{ $item['finish_type'] === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
-                                        {{ $item['finish_type'] === 'hanger' ? '👔 Hanger' : '📦 Fold' }}
-                                    </span>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Quantity</p>
-                                    <p class="text-lg font-bold text-gray-800">{{ $item['quantity'] }} pcs</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Amount</p>
-                                    <p class="text-lg font-bold text-purple-600">{{ number_format($item['subtotal'], 2) }}
-                                        AED</p>
+                                <div class="text-right">
+                                    <p class="text-xs text-gray-500">Amount</p>
+                                    <p class="text-base font-bold text-purple-600">{{ number_format($item['subtotal'], 2) }} AED</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="removeItem({{ $index }})"
-                                class="ml-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:bg-red-600">
-                                🗑️ Remove
-                            </button>
                         </div>
                     </div>
                 @empty
-                    <div class="bg-gray-100 rounded-xl p-8 text-center">
+                    <div class="bg-gray-100 rounded-xl p-8 text-center col-span-full">
                         <p class="text-gray-500 text-lg">No items added yet</p>
                         <p class="text-gray-400 text-sm mt-1">Use the form above to add laundry items</p>
                     </div>
