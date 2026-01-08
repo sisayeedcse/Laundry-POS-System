@@ -137,7 +137,8 @@
     {{-- Orders List - Card Layout --}}
     <div class="space-y-4">
         @forelse ($this->orders as $order)
-            <div wire:key="order-{{ $order->id }}" class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+            <div wire:key="order-{{ $order->id }}"
+                class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
                 <div class="p-6">
                     {{-- Order Header --}}
                     <div class="flex items-start justify-between mb-4 pb-4 border-b border-gray-100">
@@ -179,6 +180,9 @@
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Customer</p>
                             <p class="text-sm font-semibold text-gray-900">{{ $order->customer->name }}</p>
                             <p class="text-xs text-gray-600">{{ $order->customer->phone }}</p>
+                            @if($order->notes)
+                                <p class="text-xs text-gray-500 mt-2 italic">📝 {{ $order->notes }}</p>
+                            @endif
                         </div>
 
                         {{-- Items & Total --}}
@@ -195,10 +199,10 @@
                                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Order Status</p>
                                 <select wire:change="updateStatus({{ $order->id }}, $event.target.value)"
                                     wire:key="status-{{ $order->id }}" class="w-full rounded-lg border-0 text-xs font-semibold cursor-pointer focus:ring-2 focus:ring-purple-500 px-3 py-2
-                                        @if($order->status === 'pending') bg-yellow-100 text-yellow-800
-                                        @elseif($order->status === 'processing') bg-blue-100 text-blue-800
-                                        @elseif($order->status === 'ready') bg-purple-100 text-purple-800
-                                        @else bg-green-100 text-green-800 @endif">
+                                            @if($order->status === 'pending') bg-yellow-100 text-yellow-800
+                                            @elseif($order->status === 'processing') bg-blue-100 text-blue-800
+                                            @elseif($order->status === 'ready') bg-purple-100 text-purple-800
+                                            @else bg-green-100 text-green-800 @endif">
                                     <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>⏳ Pending
                                     </option>
                                     <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>🔄
@@ -216,15 +220,15 @@
                                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Payment</p>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                                            @if($order->payment_status === 'pending') bg-red-100 text-red-800
-                                            @elseif($order->payment_status === 'partial') bg-orange-100 text-orange-800
-                                            @else bg-green-100 text-green-800 @endif">
+                                                @if($order->payment_status === 'pending') bg-red-100 text-red-800
+                                                @elseif($order->payment_status === 'partial') bg-orange-100 text-orange-800
+                                                @else bg-green-100 text-green-800 @endif">
                                         {{ ucfirst($order->payment_status) }}
                                     </span>
                                     @if($order->payment_method)
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                                                    @if($order->payment_method === 'cash') bg-emerald-100 text-emerald-800
-                                                    @else bg-indigo-100 text-indigo-800 @endif">
+                                                            @if($order->payment_method === 'cash') bg-emerald-100 text-emerald-800
+                                                            @else bg-indigo-100 text-indigo-800 @endif">
                                             @if($order->payment_method === 'cash')
                                                 💵
                                             @else
