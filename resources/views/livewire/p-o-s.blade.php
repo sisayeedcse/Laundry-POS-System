@@ -93,10 +93,10 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-4">👕 Step 2: Add Laundry Items</h2>
 
             {{-- Simple Add Item Card --}}
-            <div
-                class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6 border-2 border-dashed border-purple-300">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                    <div class="lg:col-span-2">
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6 border-2 border-dashed border-purple-300"
+                wire:key="add-item-form-{{ count($items) }}">
+                <div class="flex gap-4 items-end">
+                    <div class="flex-1 min-w-[200px]">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Item</label>
                         <select wire:model.live="selectedServiceId"
                             class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
@@ -109,7 +109,7 @@
                         </select>
                     </div>
 
-                    <div>
+                    <div class="w-40">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Service</label>
                         <select wire:model.live="serviceType"
                             class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
@@ -118,7 +118,7 @@
                         </select>
                     </div>
 
-                    <div>
+                    <div class="w-32">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Finish</label>
                         <select wire:model.live="finishType"
                             class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
@@ -127,15 +127,15 @@
                         </select>
                     </div>
 
-                    <div>
+                    <div class="w-24">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Qty</label>
-                        <input type="number" wire:model.live="quantity" min="1"
+                        <input type="number" wire:model.live="quantity" min="1" value="1"
                             class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base text-center font-bold focus:border-purple-500" />
                     </div>
 
-                    <div>
+                    <div class="w-32">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Price (AED)</label>
-                        <input type="number" wire:model.live="price" step="0.01" min="0"
+                        <input type="number" wire:model.live="price" step="0.01" min="0" placeholder="Enter price"
                             class="w-full rounded-lg border-2 border-purple-300 px-4 py-3 text-base font-bold text-purple-600 focus:border-purple-500" />
                     </div>
                 </div>
@@ -164,15 +164,18 @@
                                 <button type="button" wire:click="removeItem({{ $index }})"
                                     class="rounded-lg bg-red-500 p-2 text-white hover:bg-red-600 flex-shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="inline-flex rounded-full px-2 py-1 text-xs font-bold {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                <span
+                                    class="inline-flex rounded-full px-2 py-1 text-xs font-bold {{ $item['service_type'] === 'wash_iron' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
                                     {{ $item['service_type'] === 'wash_iron' ? '🧼 W&I' : '🔥 Iron' }}
                                 </span>
-                                <span class="inline-flex rounded-full px-2 py-1 text-xs font-bold {{ $item['finish_type'] === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                <span
+                                    class="inline-flex rounded-full px-2 py-1 text-xs font-bold {{ $item['finish_type'] === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
                                     {{ $item['finish_type'] === 'hanger' ? '👔' : '📦' }}
                                 </span>
                             </div>
@@ -183,7 +186,8 @@
                                 </div>
                                 <div class="text-right">
                                     <p class="text-xs text-gray-500">Amount</p>
-                                    <p class="text-base font-bold text-purple-600">{{ number_format($item['subtotal'], 2) }} AED</p>
+                                    <p class="text-base font-bold text-purple-600">{{ number_format($item['subtotal'], 2) }}
+                                        AED</p>
                                 </div>
                             </div>
                         </div>
@@ -370,4 +374,17 @@
             </div>
         </div>
     @endif
+
+    {{-- JavaScript to ensure form resets properly --}}
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('item-added', () => {
+                // Focus on the item select dropdown to encourage next selection
+                const selectElement = document.querySelector('select[wire\\:model\\.live="selectedServiceId"]');
+                if (selectElement) {
+                    selectElement.focus();
+                }
+            });
+        });
+    </script>
 </div>

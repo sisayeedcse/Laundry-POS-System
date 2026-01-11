@@ -258,12 +258,22 @@ class POS extends Component
             'subtotal' => $this->price * $this->quantity,
         ];
 
-        // Reset item fields
-        $this->selectedServiceId = null;
+        // Reset all item fields to default state using Livewire's reset method
+        $this->reset([
+            'selectedServiceId',
+            'quantity',
+            'price',
+            'serviceType',
+            'finishType'
+        ]);
+        
+        // Set default values after reset
         $this->quantity = 1;
-        $this->price = 0;
         $this->serviceType = 'wash_iron';
         $this->finishType = 'hanger';
+        
+        // Dispatch browser event to notify frontend
+        $this->dispatch('item-added');
     }
 
     /**
