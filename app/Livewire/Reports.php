@@ -57,10 +57,14 @@ class Reports extends Component
         $paidQuery = clone $query;
         $pendingQuery = clone $query;
         $deliveredQuery = clone $query;
+        
+        // Calculate revenue: total_amount of orders that are paid or partially paid
+        $totalRevenue = $revenueQuery->whereIn('payment_status', ['paid', 'partial'])
+            ->sum('total_amount');
 
         return [
             'total_orders' => $totalQuery->count(),
-            'total_revenue' => $revenueQuery->where('payment_status', 'paid')->sum('total_amount'), // Only count paid orders
+            'total_revenue' => $totalRevenue,
             'paid_orders' => $paidQuery->where('payment_status', 'paid')->count(),
             'pending_orders' => $pendingQuery->where('payment_status', 'pending')->count(),
             'delivered_orders' => $deliveredQuery->where('status', 'delivered')->count(),
@@ -70,7 +74,7 @@ class Reports extends Component
     #[Computed]
     public function paymentMethodData()
     {
-        $baseQuery = Order::query()->where('payment_status', 'paid');
+        $baseQuery = Order::query()->whereIn('payment_status', ['paid', 'partial']);
 
         switch ($this->reportType) {
             case 'daily':
@@ -91,7 +95,7 @@ class Reports extends Component
                 break;
         }
 
-        // Clone the query for each payment method to avoid conflicts
+        // Clone queries for each payment method
         $cashQuery = clone $baseQuery;
         $cardQuery = clone $baseQuery;
 
@@ -109,7 +113,8 @@ class Reports extends Component
         $query = DB::table('order_items')
             ->join('services', 'order_items.service_id', '=', 'services.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.payment_status', 'paid') // Only count paid orders
+            // Include all orders with any payment (paid or partial), not just fully paid
+            ->whereIn('orders.payment_status', ['paid', 'partial'])
             ->select('services.name', DB::raw('SUM(order_items.quantity) as total_quantity'), DB::raw('SUM(order_items.unit_price * order_items.quantity) as total_revenue'))
             ->groupBy('services.id', 'services.name');
 
