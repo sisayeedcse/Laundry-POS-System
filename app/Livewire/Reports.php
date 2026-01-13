@@ -30,8 +30,35 @@ class Reports extends Component
     #[Computed]
     public function salesData()
     {
-        $query = Order::query();
+        // For revenue calculations, use delivered_at
+        $revenueQuery = Order::query()
+            ->whereNotNull('delivered_at')
+            ->whereIn('payment_status', ['paid', 'partial']);
 
+        switch ($this->reportType) {
+            case 'daily':
+                $revenueQuery->whereDate('delivered_at', $this->selectedDate);
+                break;
+            case 'weekly':
+                $revenueQuery->whereBetween('delivered_at', [
+                    Carbon::parse($this->selectedDate)->startOfWeek(),
+                    Carbon::parse($this->selectedDate)->endOfWeek()
+                ]);
+                break;
+            case 'monthly':
+                $revenueQuery->whereMonth('delivered_at', Carbon::parse($this->selectedDate)->month)
+                      ->whereYear('delivered_at', Carbon::parse($this->selectedDate)->year);
+                break;
+            case 'custom':
+                $revenueQuery->whereBetween('delivered_at', [$this->dateFrom, $this->dateTo]);
+                break;
+        }
+        
+        // Calculate revenue: total_amount of orders that are delivered and paid/partially paid
+        $totalRevenue = $revenueQuery->sum('total_amount');
+
+        // For counting orders by created_at (orders created in the period)
+        $query = Order::query();
         switch ($this->reportType) {
             case 'daily':
                 $query->whereDate('created_at', $this->selectedDate);
@@ -53,14 +80,9 @@ class Reports extends Component
 
         // Clone queries to avoid condition accumulation
         $totalQuery = clone $query;
-        $revenueQuery = clone $query;
         $paidQuery = clone $query;
         $pendingQuery = clone $query;
         $deliveredQuery = clone $query;
-        
-        // Calculate revenue: total_amount of orders that are paid or partially paid
-        $totalRevenue = $revenueQuery->whereIn('payment_status', ['paid', 'partial'])
-            ->sum('total_amount');
 
         return [
             'total_orders' => $totalQuery->count(),
@@ -74,24 +96,27 @@ class Reports extends Component
     #[Computed]
     public function paymentMethodData()
     {
-        $baseQuery = Order::query()->whereIn('payment_status', ['paid', 'partial']);
+        // Use delivered_at for payment method revenue tracking
+        $baseQuery = Order::query()
+            ->whereNotNull('delivered_at')
+            ->whereIn('payment_status', ['paid', 'partial']);
 
         switch ($this->reportType) {
             case 'daily':
-                $baseQuery->whereDate('created_at', $this->selectedDate);
+                $baseQuery->whereDate('delivered_at', $this->selectedDate);
                 break;
             case 'weekly':
-                $baseQuery->whereBetween('created_at', [
+                $baseQuery->whereBetween('delivered_at', [
                     Carbon::parse($this->selectedDate)->startOfWeek(),
                     Carbon::parse($this->selectedDate)->endOfWeek()
                 ]);
                 break;
             case 'monthly':
-                $baseQuery->whereMonth('created_at', Carbon::parse($this->selectedDate)->month)
-                      ->whereYear('created_at', Carbon::parse($this->selectedDate)->year);
+                $baseQuery->whereMonth('delivered_at', Carbon::parse($this->selectedDate)->month)
+                      ->whereYear('delivered_at', Carbon::parse($this->selectedDate)->year);
                 break;
             case 'custom':
-                $baseQuery->whereBetween('created_at', [$this->dateFrom, $this->dateTo]);
+                $baseQuery->whereBetween('delivered_at', [$this->dateFrom, $this->dateTo]);
                 break;
         }
 
@@ -113,27 +138,28 @@ class Reports extends Component
         $query = DB::table('order_items')
             ->join('services', 'order_items.service_id', '=', 'services.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            // Include all orders with any payment (paid or partial), not just fully paid
+            // Include all orders with any payment (paid or partial) that are delivered
+            ->whereNotNull('orders.delivered_at')
             ->whereIn('orders.payment_status', ['paid', 'partial'])
             ->select('services.name', DB::raw('SUM(order_items.quantity) as total_quantity'), DB::raw('SUM(order_items.unit_price * order_items.quantity) as total_revenue'))
             ->groupBy('services.id', 'services.name');
 
         switch ($this->reportType) {
             case 'daily':
-                $query->whereDate('orders.created_at', $this->selectedDate);
+                $query->whereDate('orders.delivered_at', $this->selectedDate);
                 break;
             case 'weekly':
-                $query->whereBetween('orders.created_at', [
+                $query->whereBetween('orders.delivered_at', [
                     Carbon::parse($this->selectedDate)->startOfWeek(),
                     Carbon::parse($this->selectedDate)->endOfWeek()
                 ]);
                 break;
             case 'monthly':
-                $query->whereMonth('orders.created_at', Carbon::parse($this->selectedDate)->month)
-                      ->whereYear('orders.created_at', Carbon::parse($this->selectedDate)->year);
+                $query->whereMonth('orders.delivered_at', Carbon::parse($this->selectedDate)->month)
+                      ->whereYear('orders.delivered_at', Carbon::parse($this->selectedDate)->year);
                 break;
             case 'custom':
-                $query->whereBetween('orders.created_at', [$this->dateFrom, $this->dateTo]);
+                $query->whereBetween('orders.delivered_at', [$this->dateFrom, $this->dateTo]);
                 break;
         }
 

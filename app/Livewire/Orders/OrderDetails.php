@@ -53,7 +53,15 @@ class OrderDetails extends Component
         }
 
         $order = Order::findOrFail($this->orderId);
-        $order->update(['status' => $status]);
+        
+        $updateData = ['status' => $status];
+        
+        // Set delivered_at timestamp when status changes to delivered
+        if ($status === 'delivered' && $order->status !== 'delivered') {
+            $updateData['delivered_at'] = now();
+        }
+        
+        $order->update($updateData);
 
         // When order is delivered, show payment modal instead of auto-marking as paid
         if ($status === 'delivered' && $order->payment_status !== 'paid') {

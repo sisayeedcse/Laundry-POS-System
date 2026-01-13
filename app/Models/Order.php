@@ -26,6 +26,7 @@ class Order extends Model
         'payment_status',
         'payment_method',
         'delivery_date',
+        'delivered_at',
         'notes',
     ];
 
@@ -42,6 +43,7 @@ class Order extends Model
             'tax' => 'decimal:2',
             'advance_payment' => 'decimal:2',
             'delivery_date' => 'date',
+            'delivered_at' => 'datetime',
         ];
     }
 
