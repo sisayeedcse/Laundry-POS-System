@@ -82,14 +82,34 @@ class Reports extends Component
         $totalQuery = clone $query;
         $paidQuery = clone $query;
         $pendingQuery = clone $query;
-        $deliveredQuery = clone $query;
+        
+        // For delivered orders count, use delivered_at (same as revenue)
+        $deliveredQuery = Order::query()->whereNotNull('delivered_at');
+        switch ($this->reportType) {
+            case 'daily':
+                $deliveredQuery->whereDate('delivered_at', $this->selectedDate);
+                break;
+            case 'weekly':
+                $deliveredQuery->whereBetween('delivered_at', [
+                    Carbon::parse($this->selectedDate)->startOfWeek(),
+                    Carbon::parse($this->selectedDate)->endOfWeek()
+                ]);
+                break;
+            case 'monthly':
+                $deliveredQuery->whereMonth('delivered_at', Carbon::parse($this->selectedDate)->month)
+                      ->whereYear('delivered_at', Carbon::parse($this->selectedDate)->year);
+                break;
+            case 'custom':
+                $deliveredQuery->whereBetween('delivered_at', [$this->dateFrom, $this->dateTo]);
+                break;
+        }
 
         return [
             'total_orders' => $totalQuery->count(),
             'total_revenue' => $totalRevenue,
             'paid_orders' => $paidQuery->where('payment_status', 'paid')->count(),
             'pending_orders' => $pendingQuery->where('payment_status', 'pending')->count(),
-            'delivered_orders' => $deliveredQuery->where('status', 'delivered')->count(),
+            'delivered_orders' => $deliveredQuery->count(),
         ];
     }
 
