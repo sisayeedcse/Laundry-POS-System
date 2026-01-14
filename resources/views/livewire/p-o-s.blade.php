@@ -57,10 +57,8 @@
 
                 <div>
                     <label class="block text-lg font-semibold text-gray-700 mb-2">📱 Phone Number *</label>
-                    <input type="tel" wire:model.live="customerPhone" wire:blur="searchCustomer"
-                        placeholder="0501234567" pattern="[0-9]*" inputmode="numeric"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                    <input type="text" wire:model.live="customerPhone" wire:blur="searchCustomer"
+                        placeholder="0501234567 or ABC123"
                         class="w-full rounded-xl border-2 border-gray-300 px-6 py-4 text-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" />
                     @if($this->selectedCustomer)
                         <p class="mt-2 text-base font-medium text-green-600">✓ Existing: {{ $this->selectedCustomer->name }}
@@ -375,14 +373,103 @@
         </div>
     @endif
 
+    {{-- Success Modal Popup --}}
+    @if($showSuccessModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ show: @entangle('showSuccessModal') }" x-show="show"
+            style="display: none;">
+            {{-- Backdrop --}}
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity backdrop-blur-sm"></div>
+
+            {{-- Modal --}}
+            <div class="flex min-h-screen items-center justify-center p-4">
+                <div class="relative w-full max-w-md transform overflow-hidden rounded-3xl bg-gradient-to-br from-purple-50 to-white shadow-2xl transition-all"
+                    x-show="show" x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+
+                    {{-- Success Icon --}}
+                    <div class="flex justify-center pt-8">
+                        <div class="relative">
+                            <div class="absolute inset-0 animate-ping rounded-full bg-green-400 opacity-75"></div>
+                            <div
+                                class="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
+                                <svg class="h-12 w-12 text-white animate-bounce" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Content --}}
+                    <div class="p-8 text-center">
+                        <h3 class="mb-3 text-3xl font-bold text-gray-900">🎉 Success!</h3>
+                        <p class="mb-2 text-lg text-gray-700">Order created successfully</p>
+
+                        {{-- Order Number --}}
+                        <div class="my-6 rounded-2xl bg-white p-4 shadow-inner border-2 border-purple-200">
+                            <p class="text-sm font-medium text-gray-600 mb-1">Order Number</p>
+                            <p class="text-3xl font-bold text-purple-600">#{{ $successOrderNumber }}</p>
+                        </div>
+
+                        {{-- Payment Status --}}
+                        <div class="mb-6 inline-flex items-center gap-2 rounded-full px-6 py-2 
+                                @if($successPaymentMethod === 'due') bg-orange-100 border-2 border-orange-300
+                                @else bg-green-100 border-2 border-green-300 @endif">
+                            <svg class="h-5 w-5 @if($successPaymentMethod === 'due') text-orange-600 @else text-green-600 @endif"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span
+                                class="font-semibold @if($successPaymentMethod === 'due') text-orange-800 @else text-green-800 @endif">
+                                @if($successPaymentMethod === 'due')
+                                    Payment Due
+                                @else
+                                    Paid - {{ ucfirst($successPaymentMethod) }}
+                                @endif
+                            </span>
+                        </div>
+
+                        {{-- Action Buttons --}}
+                        <div class="space-y-3">
+                            <button wire:click="createAnotherOrder"
+                                class="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 text-lg font-bold text-white shadow-lg transition-all hover:shadow-xl hover:scale-105">
+                                <div class="relative flex items-center justify-center gap-2">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span>Create Another Order</span>
+                                </div>
+                            </button>
+
+                            <button wire:click="goToOrders"
+                                class="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-gray-300 bg-white px-6 py-4 text-lg font-semibold text-gray-700 transition-all hover:border-purple-300 hover:bg-purple-50">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <span>View All Orders</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- JavaScript to ensure form resets properly --}}
     <script>
         document.addEventListener('livewire:init', () => {
             Livewire.on('item-added', () => {
                 // Focus on the item select dropdown to encourage next selection
                 const selectElement = document.querySelector('select[wire\\:model\\.live="selectedServiceId"]');
-                if (selectElement) {
-                    selectElement.focus();
+                if (selectElement) {           selectElement.focus();
                 }
             });
         });

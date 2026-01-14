@@ -29,8 +29,21 @@ class POS extends Component
     public string $notes = '';
     public float $discount = 0; // Discount amount (optional)
     
+    /**
+     * Handle discount input - convert empty to 0
+     */
+    public function updatedDiscount($value): void
+    {
+        $this->discount = empty($value) ? 0 : (float) $value;
+    }
+    
     // Payment modal
     public bool $showPaymentModal = false;
+    
+    // Success modal
+    public bool $showSuccessModal = false;
+    public string $successOrderNumber = '';
+    public string $successPaymentMethod = '';
     
     // No customer modal needed
     public bool $showCustomerModal = false;
@@ -157,9 +170,8 @@ class POS extends Component
                     $this->customOrderId = $customer->customer_order_number;
                 }
             } else {
-                // New customer - clear fields
+                // New customer - don't clear name field (user may have already entered it)
                 $this->selectedCustomerId = null;
-                $this->customerName = '';
                 // customOrderId can be manually entered by user
             }
         }
@@ -416,12 +428,10 @@ class POS extends Component
         // Close payment modal
         $this->showPaymentModal = false;
 
-        // Success message based on payment method
-        $paymentMsg = $paymentMethod === 'due' 
-            ? 'Payment: Due' 
-            : 'Payment: ' . ucfirst($paymentMethod) . ' (Paid)';
-        
-        session()->flash('success', 'Order #' . $order->order_number . ' created successfully! ' . $paymentMsg);
+        // Show success modal
+        $this->successOrderNumber = $order->order_number;
+        $this->successPaymentMethod = $paymentMethod;
+        $this->showSuccessModal = true;
 
         // Reset form
         $this->resetForm();
@@ -518,11 +528,30 @@ class POS extends Component
     }
 
     /**
+     * Create another order - close success modal and stay on POS
+     */
+    public function createAnotherOrder(): void
+    {
+        $this->showSuccessModal = false;
+        $this->successOrderNumber = '';
+        $this->successPaymentMethod = '';
+    }
+
+    /**
+     * Go to orders page
+     */
+    public function goToOrders()
+    {
+        return redirect()->route('orders.index');
+    }
+
+    /**
      * Reset form after successful order creation
      */
     private function resetForm(): void
     {
         $this->customerPhone = '';
+        $this->customerName = '';
         $this->selectedCustomerId = null;
         $this->selectedServiceId = null;
         $this->customOrderId = '';
