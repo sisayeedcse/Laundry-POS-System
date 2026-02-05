@@ -12,8 +12,9 @@
             box-sizing: border-box;
         }
 
+        /* Thermal Paper Size: 80mm width x 150mm height */
         @page {
-            size: 80mm auto;
+            size: 80mm 150mm;
             margin: 0;
         }
 
@@ -22,14 +23,16 @@
             font-size: 11px;
             line-height: 1.3;
             color: #000;
-            width: 80mm;
+            width: 75mm;
+            max-width: 80mm;
             margin: 0 auto;
-            padding: 5mm;
+            padding: 2mm;
             background: #fff;
         }
 
         .receipt {
             width: 100%;
+            max-width: 80mm;
         }
 
         .center {
@@ -116,11 +119,23 @@
             margin: 10px 0;
         }
 
+        /* Thermal Printer Optimizations */
         @media print {
+            @page {
+                size: 80mm 150mm;
+                margin: 0;
+            }
+
             body {
                 width: 80mm;
+                max-width: 80mm;
                 margin: 0;
-                padding: 5mm;
+                padding: 2mm;
+            }
+
+            .receipt {
+                width: 100%;
+                max-width: 80mm;
             }
 
             .no-print {
@@ -169,8 +184,11 @@
                     <span>{{ \Carbon\Carbon::parse($order->delivery_date)->format('d M Y') }}</span>
                 </div>
             </div>
-            <div style="border: 2px solid #000; padding: 8px 12px; text-align: center; min-width: 60px;">
-                <div style="font-size: 24px; font-weight: bold; line-height: 1;">{{ str_replace('#', '', $order->order_number) }}</div>
+            <div
+                style="border: 3px solid #000; padding: 8px; text-align: center; min-width: 50px; box-sizing: border-box;">
+                <div style="font-size: 24px; font-weight: bold; line-height: 1;">
+                    {{ str_replace('#', '', $order->order_number) }}
+                </div>
             </div>
         </div>
 
