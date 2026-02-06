@@ -246,10 +246,23 @@
         <div class="divider-double"></div>
 
         <!-- Payment Info -->
-        <div class="summary-row bold">
-            <span>Paid ({{ ucfirst($order->payment_method) }})</span>
-            <span>AED {{ number_format($order->total_amount, 2) }}</span>
-        </div>
+        @if($order->payment_status === 'paid')
+            <div class="summary-row bold">
+                <span>Paid ({{ ucfirst($order->payment_method) }})</span>
+                <span>AED {{ number_format($order->total_amount, 2) }}</span>
+            </div>
+        @else
+            <div class="summary-row bold">
+                <span>Due Payment</span>
+                <span>AED {{ number_format($order->due_balance, 2) }}</span>
+            </div>
+            @if($order->total_paid > 0)
+                <div class="summary-row" style="font-size: 11px;">
+                    <span>Paid ({{ ucfirst($order->payment_method) }})</span>
+                    <span>AED {{ number_format($order->total_paid, 2) }}</span>
+                </div>
+            @endif
+        @endif
 
         <div class="divider"></div>
 
