@@ -184,6 +184,10 @@
                     <span>Delivery:</span>
                     <span>{{ \Carbon\Carbon::parse($order->delivery_date)->format('d M Y') }}</span>
                 </div>
+                <div class="info-line">
+                    <span>Status:</span>
+                    <span class="bold">{{ ucfirst($order->status) }}</span>
+                </div>
             </div>
             <div
                 style="border: 3px solid #000; padding: 8px; text-align: center; min-width: 50px; box-sizing: border-box;">
