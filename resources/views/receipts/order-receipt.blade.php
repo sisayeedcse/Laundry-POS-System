@@ -12,16 +12,17 @@
             box-sizing: border-box;
         }
 
-        /* Thermal Paper Size: 80mm width x 150mm height */
+        /* Thermal Paper Size: 80mm width x 210mm height */
         @page {
-            size: 80mm 150mm;
+            size: 80mm 210mm;
             margin: 0;
         }
 
         body {
             font-family: 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.3;
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: bold;
             color: #000;
             width: 75mm;
             max-width: 80mm;
@@ -44,13 +45,13 @@
         }
 
         .company-name {
-            font-size: 16px;
+            font-size: 19px;
             font-weight: bold;
             margin-bottom: 3px;
         }
 
         .company-info {
-            font-size: 9px;
+            font-size: 11px;
             margin-bottom: 2px;
         }
 
@@ -68,20 +69,20 @@
             display: flex;
             justify-content: space-between;
             margin: 2px 0;
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .section-title {
             font-weight: bold;
             margin: 8px 0 4px 0;
-            font-size: 10px;
+            font-size: 13px;
         }
 
         .item-row {
             display: flex;
             justify-content: space-between;
             margin: 3px 0;
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .item-name {
@@ -91,26 +92,26 @@
         .item-details {
             display: flex;
             gap: 8px;
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
             margin: 3px 0;
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
             margin: 5px 0;
-            font-size: 12px;
+            font-size: 15px;
             font-weight: bold;
         }
 
         .footer-text {
-            font-size: 9px;
+            font-size: 11px;
             margin-top: 3px;
         }
 
@@ -122,7 +123,7 @@
         /* Thermal Printer Optimizations */
         @media print {
             @page {
-                size: 80mm 150mm;
+                size: 80mm 210mm;
                 margin: 0;
             }
 
