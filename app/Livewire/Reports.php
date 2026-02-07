@@ -153,37 +153,32 @@ class Reports extends Component
     }
 
     #[Computed]
-    public function topServices()
+    public function recentDeliveredOrders()
     {
-        $query = DB::table('order_items')
-            ->join('services', 'order_items.service_id', '=', 'services.id')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            // Include all orders with any payment (paid or partial) that are delivered
-            ->whereNotNull('orders.delivered_at')
-            ->whereIn('orders.payment_status', ['paid', 'partial'])
-            ->select('services.name', DB::raw('SUM(order_items.quantity) as total_quantity'), DB::raw('SUM(order_items.unit_price * order_items.quantity) as total_revenue'))
-            ->groupBy('services.id', 'services.name');
+        $query = Order::with('customer')
+            ->whereNotNull('delivered_at')
+            ->where('status', 'delivered');
 
         switch ($this->reportType) {
             case 'daily':
-                $query->whereDate('orders.delivered_at', $this->selectedDate);
+                $query->whereDate('delivered_at', $this->selectedDate);
                 break;
             case 'weekly':
-                $query->whereBetween('orders.delivered_at', [
+                $query->whereBetween('delivered_at', [
                     Carbon::parse($this->selectedDate)->startOfWeek(),
                     Carbon::parse($this->selectedDate)->endOfWeek()
                 ]);
                 break;
             case 'monthly':
-                $query->whereMonth('orders.delivered_at', Carbon::parse($this->selectedDate)->month)
-                      ->whereYear('orders.delivered_at', Carbon::parse($this->selectedDate)->year);
+                $query->whereMonth('delivered_at', Carbon::parse($this->selectedDate)->month)
+                      ->whereYear('delivered_at', Carbon::parse($this->selectedDate)->year);
                 break;
             case 'custom':
-                $query->whereBetween('orders.delivered_at', [$this->dateFrom, $this->dateTo]);
+                $query->whereBetween('delivered_at', [$this->dateFrom, $this->dateTo]);
                 break;
         }
 
-        return $query->orderByDesc('total_revenue')->limit(10)->get();
+        return $query->orderByDesc('delivered_at')->limit(10)->get();
     }
 
     #[Computed]

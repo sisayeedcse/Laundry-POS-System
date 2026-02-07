@@ -97,7 +97,8 @@
                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Revenue</p>
                     <p class="text-3xl font-bold text-green-600 mt-2">
                         {{ number_format((float) $this->salesData['total_revenue'], 2) }} <span
-                            class="text-lg text-gray-600">QAR</span></p>
+                            class="text-lg text-gray-600">QAR</span>
+                    </p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,27 +243,28 @@
         </div>
     </div>
 
-    {{-- Top Services & Recent Orders --}}
+    {{-- Recent Delivered Orders & Recent Orders --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{-- Top Services --}}
+        {{-- Recent Delivered Orders --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center gap-2 mb-6">
-                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
-                <h3 class="font-bold text-gray-900">Top Services</h3>
+                <h3 class="font-bold text-gray-900">Recent Delivered Orders</h3>
             </div>
             <div class="space-y-3">
-                @forelse($this->topServices as $service)
+                @forelse($this->recentDeliveredOrders as $order)
                     <div
-                        class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        class="flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
                         <div class="flex-1">
-                            <p class="font-semibold text-gray-900 text-sm">{{ $service->name }}</p>
-                            <p class="text-xs text-gray-600">{{ $service->total_quantity }} items</p>
+                            <p class="font-semibold text-green-700 text-sm">{{ $order->order_number }}</p>
+                            <p class="text-xs text-gray-600">{{ $order->customer->name }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-purple-600">{{ number_format((float) $service->total_revenue, 2) }} QAR</p>
+                            <p class="font-bold text-gray-900 text-sm">{{ number_format((float) $order->total_amount, 2) }}
+                                QAR</p>
+                            <p class="text-xs text-gray-500">{{ $order->delivered_at->format('d M, h:i A') }}</p>
                         </div>
                     </div>
                 @empty
@@ -270,9 +272,9 @@
                         <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p class="text-sm">No services data</p>
+                        <p class="text-sm">No delivered orders yet</p>
                     </div>
                 @endforelse
             </div>
@@ -296,7 +298,8 @@
                             <p class="text-xs text-gray-600">{{ $order->customer->name }}</p>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-gray-900 text-sm">{{ number_format((float) $order->total_amount, 2) }} QAR</p>
+                            <p class="font-bold text-gray-900 text-sm">{{ number_format((float) $order->total_amount, 2) }}
+                                QAR</p>
                             <p class="text-xs text-gray-500">{{ $order->created_at->format('d M, h:i A') }}</p>
                         </div>
                     </div>
