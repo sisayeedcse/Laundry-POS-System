@@ -70,6 +70,9 @@ class OrderDetails extends Component
         } else {
             session()->flash('success', 'Order status updated to ' . ucfirst($status) . '!');
         }
+        
+        // Dispatch event to refresh other components
+        $this->dispatch('order-updated');
     }
 
     /**
@@ -217,6 +220,9 @@ class OrderDetails extends Component
     {
         $this->showPaymentModal = false;
         session()->flash('success', 'Payment recorded successfully!');
+        
+        // Dispatch event to refresh other components
+        $this->dispatch('order-updated');
     }
 
     /**

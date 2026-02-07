@@ -116,6 +116,16 @@ class OrderList extends Component
     }
 
     /**
+     * Refresh orders when updated from other components
+     */
+    #[On('order-updated')]
+    public function refreshOrders(): void
+    {
+        unset($this->orders);
+        $this->resetPage();
+    }
+
+    /**
      * Update order status
      */
     public function updateStatus(int $orderId, string $status): void
@@ -141,6 +151,7 @@ class OrderList extends Component
             }
             
             // Force refresh the orders list by resetting pagination and clearing cache
+            unset($this->orders);
             $this->resetPage();
             $this->dispatch('$refresh');
         }
@@ -164,6 +175,7 @@ class OrderList extends Component
             $order->delete();
             
             session()->flash('success', 'Order deleted successfully!');
+            unset($this->orders);
             $this->resetPage();
         }
     }
@@ -183,6 +195,7 @@ class OrderList extends Component
 
             $this->pendingOrderId = null;
             session()->flash('success', 'Order delivered and payment recorded as ' . strtoupper($paymentMethod) . '!');
+            unset($this->orders);
             $this->resetPage();
             $this->dispatch('$refresh');
         }
@@ -198,6 +211,7 @@ class OrderList extends Component
         $this->paymentFilter = 'all';
         $this->dateFrom = null;
         $this->dateTo = null;
+        unset($this->orders);
         $this->resetPage();
     }
 
