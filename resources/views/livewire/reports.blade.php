@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+<div wire:poll.10s class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
     {{-- Header Section --}}
     <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -243,18 +243,22 @@
         </div>
     </div>
 
-    {{-- Recent Delivered Orders & Recent Orders --}}
+    {{-- Delivered Orders & All Orders --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{-- Recent Delivered Orders --}}
+        {{-- Delivered Orders --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center gap-2 mb-6">
                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
-                <h3 class="font-bold text-gray-900">Recent Delivered Orders</h3>
+                <h3 class="font-bold text-gray-900">Delivered Orders</h3>
+                <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                    {{ $this->deliveredOrders->total() }}
+                </span>
             </div>
             <div class="space-y-3">
-                @forelse($this->recentDeliveredOrders as $order)
+                @forelse($this->deliveredOrders as $order)
                     <div
                         class="flex items-center justify-between p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
                         <div class="flex-1">
@@ -278,19 +282,28 @@
                     </div>
                 @endforelse
             </div>
+            @if($this->deliveredOrders->hasPages())
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    {{ $this->deliveredOrders->links() }}
+                </div>
+            @endif
         </div>
 
-        {{-- Recent Orders --}}
+        {{-- All Orders --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center gap-2 mb-6">
                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h3 class="font-bold text-gray-900">Recent Orders</h3>
+                <h3 class="font-bold text-gray-900">All Orders</h3>
+                <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                    {{ $this->allOrders->total() }}
+                </span>
             </div>
             <div class="space-y-3">
-                @forelse($this->recentOrders as $order)
+                @forelse($this->allOrders as $order)
                     <div
                         class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <div class="flex-1">
@@ -314,6 +327,11 @@
                     </div>
                 @endforelse
             </div>
+            @if($this->allOrders->hasPages())
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    {{ $this->allOrders->links() }}
+                </div>
+            @endif
         </div>
     </div>
 </div>

@@ -125,6 +125,16 @@ class OrderList extends Component
         $this->resetPage();
     }
 
+    #[Computed]
+    public function pendingOrder(): ?Order
+    {
+        if ($this->pendingOrderId === null) {
+            return null;
+        }
+
+        return Order::with('customer')->find($this->pendingOrderId);
+    }
+
     /**
      * Update order status
      */
@@ -147,6 +157,10 @@ class OrderList extends Component
                 $this->pendingOrderId = $orderId;
                 session()->flash('info', 'Please select payment method to complete the order.');
             } else {
+                if ($this->pendingOrderId === $orderId) {
+                    $this->pendingOrderId = null;
+                }
+
                 session()->flash('success', 'Order status updated successfully!');
             }
             
@@ -183,8 +197,14 @@ class OrderList extends Component
     /**
      * Complete payment with selected method
      */
-    public function completePayment(int $orderId, string $paymentMethod): void
+    public function completePayment(string $paymentMethod): void
     {
+        if ($this->pendingOrderId === null) {
+            session()->flash('error', 'No order is selected for payment.');
+            return;
+        }
+
+        $orderId = $this->pendingOrderId;
         $order = Order::find($orderId);
         
         if ($order && $order->status === 'delivered') {
@@ -198,7 +218,16 @@ class OrderList extends Component
             unset($this->orders);
             $this->resetPage();
             $this->dispatch('$refresh');
+            return;
         }
+
+        $this->pendingOrderId = null;
+        session()->flash('error', 'Selected order is no longer eligible for payment.');
+    }
+
+    public function cancelPendingPayment(): void
+    {
+        $this->pendingOrderId = null;
     }
 
     /**

@@ -296,7 +296,7 @@
                                         <div class="pt-3 border-t border-purple-200">
                                             <div class="flex justify-between">
                                                 <span class="text-base font-semibold text-gray-900">Total Amount</span>
-                                                <span class="text-lg font-bold text-purple-600">AED
+                                                <span class="text-lg font-bold text-purple-600">QAR
                                                     {{ number_format($this->order->total_amount, 2) }}</span>
                                             </div>
                                         </div>
@@ -539,7 +539,7 @@
 
                         <div class="mt-4 rounded-lg bg-yellow-50 p-3">
                             <p class="text-xs text-yellow-800">
-                                <strong>Note:</strong> Total amount: <strong>{{ number_format($this->order->total_amount, 2) }} AED</strong>
+                                <strong>Note:</strong> Total amount: <strong>{{ number_format($this->order->total_amount, 2) }} QAR</strong>
                             </p>
                         </div>
                     </div>

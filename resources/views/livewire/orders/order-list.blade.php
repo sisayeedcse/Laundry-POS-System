@@ -134,6 +134,65 @@
         @endif
     </div>
 
+    @if($this->pendingOrder)
+        <div class="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-5 border border-purple-200">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-base font-semibold text-gray-900">Complete Payment</h4>
+                        <p class="text-sm text-gray-600">
+                            Order {{ $this->pendingOrder->order_number }} - {{ $this->pendingOrder->customer->name }}
+                        </p>
+                    </div>
+                </div>
+                <button wire:click="cancelPendingPayment"
+                    class="text-sm text-gray-600 hover:text-gray-800 font-medium">Dismiss</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                <button wire:click="completePayment('cash')"
+                    class="group relative flex items-center justify-center gap-3 p-4 bg-white border-2 border-emerald-300 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                            <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-base font-bold text-gray-900 group-hover:text-emerald-900">Cash</p>
+                            <p class="text-xs text-gray-600 group-hover:text-emerald-700">Paid in cash</p>
+                        </div>
+                    </div>
+                </button>
+
+                <button wire:click="completePayment('card')"
+                    class="group relative flex items-center justify-center gap-3 p-4 bg-white border-2 border-indigo-300 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                            <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-base font-bold text-gray-900 group-hover:text-indigo-900">Card</p>
+                            <p class="text-xs text-gray-600 group-hover:text-indigo-700">Paid by card</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    @endif
+
     {{-- Orders List - Card Layout --}}
     <div class="space-y-4">
         @forelse ($this->orders as $order)
@@ -190,7 +249,7 @@
                             <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Order Details</p>
                             <p class="text-sm text-gray-900">{{ $order->items->count() }} item(s)</p>
                             <p class="text-lg font-bold text-gray-900">{{ number_format($order->total_amount, 2) }} <span
-                                    class="text-sm text-gray-600">AED</span></p>
+                                    class="text-sm text-gray-600">QAR</span></p>
                         </div>
 
                         {{-- Status & Payment --}}
@@ -199,10 +258,10 @@
                                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Order Status</p>
                                 <select wire:change="updateStatus({{ $order->id }}, $event.target.value)"
                                     wire:key="status-{{ $order->id }}" class="w-full rounded-lg border-0 text-xs font-semibold cursor-pointer focus:ring-2 focus:ring-purple-500 px-3 py-2
-                                            @if($order->status === 'pending') bg-yellow-100 text-yellow-800
-                                            @elseif($order->status === 'processing') bg-blue-100 text-blue-800
-                                            @elseif($order->status === 'ready') bg-purple-100 text-purple-800
-                                            @else bg-green-100 text-green-800 @endif">
+                                                    @if($order->status === 'pending') bg-yellow-100 text-yellow-800
+                                                    @elseif($order->status === 'processing') bg-blue-100 text-blue-800
+                                                    @elseif($order->status === 'ready') bg-purple-100 text-purple-800
+                                                    @else bg-green-100 text-green-800 @endif">
                                     <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>⏳ Pending
                                     </option>
                                     <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>🔄
@@ -220,15 +279,15 @@
                                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Payment</p>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                                                @if($order->payment_status === 'pending') bg-red-100 text-red-800
-                                                @elseif($order->payment_status === 'partial') bg-orange-100 text-orange-800
-                                                @else bg-green-100 text-green-800 @endif">
+                                                        @if($order->payment_status === 'pending') bg-red-100 text-red-800
+                                                        @elseif($order->payment_status === 'partial') bg-orange-100 text-orange-800
+                                                        @else bg-green-100 text-green-800 @endif">
                                         {{ ucfirst($order->payment_status) }}
                                     </span>
                                     @if($order->payment_method)
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                                                            @if($order->payment_method === 'cash') bg-emerald-100 text-emerald-800
-                                                            @else bg-indigo-100 text-indigo-800 @endif">
+                                                                            @if($order->payment_method === 'cash') bg-emerald-100 text-emerald-800
+                                                                            @else bg-indigo-100 text-indigo-800 @endif">
                                             @if($order->payment_method === 'cash')
                                                 💵
                                             @else
@@ -248,74 +307,6 @@
                         </div>
                     </div>
 
-                    {{-- Inline Payment Method Selection for Delivered Orders --}}
-                    @if($order->status === 'delivered' && $order->payment_status !== 'paid' && $pendingOrderId === $order->id)
-                        <div class="mt-6 pt-6 border-t border-gray-200">
-                            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-5 border border-purple-200">
-                                <div class="flex items-start gap-4">
-                                    <div
-                                        class="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="text-base font-semibold text-gray-900 mb-1">Complete Payment</h4>
-                                        <p class="text-sm text-gray-600 mb-4">Select the payment method used by the customer</p>
-
-                                        <div class="grid grid-cols-2 gap-3">
-                                            {{-- Cash Payment Button --}}
-                                            <button wire:click="completePayment({{ $order->id }}, 'cash')"
-                                                class="group relative flex items-center justify-center gap-3 p-4 bg-white border-2 border-emerald-300 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-200 shadow-sm hover:shadow-md">
-                                                <div class="flex items-center gap-3">
-                                                    <div
-                                                        class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
-                                                        <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                        </svg>
-                                                    </div>
-                                                    <div class="text-left">
-                                                        <p
-                                                            class="text-base font-bold text-gray-900 group-hover:text-emerald-900">
-                                                            Cash</p>
-                                                        <p class="text-xs text-gray-600 group-hover:text-emerald-700">Paid in
-                                                            cash</p>
-                                                    </div>
-                                                </div>
-                                            </button>
-
-                                            {{-- Card Payment Button --}}
-                                            <button wire:click="completePayment({{ $order->id }}, 'card')"
-                                                class="group relative flex items-center justify-center gap-3 p-4 bg-white border-2 border-indigo-300 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 shadow-sm hover:shadow-md">
-                                                <div class="flex items-center gap-3">
-                                                    <div
-                                                        class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                                                        <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                                        </svg>
-                                                    </div>
-                                                    <div class="text-left">
-                                                        <p
-                                                            class="text-base font-bold text-gray-900 group-hover:text-indigo-900">
-                                                            Card</p>
-                                                        <p class="text-xs text-gray-600 group-hover:text-indigo-700">Paid by
-                                                            card</p>
-                                                    </div>
-                                                </div>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
         @empty
@@ -352,7 +343,7 @@
         {{-- Order Details Modal --}}
         @if($showDetailsModal && $selectedOrderId)
             <div wire:key="order-details-{{ $selectedOrderId }}">
-                @livewire('orders.order-details', ['orderId' => $selectedOrderId], key('order-details-' . $selectedOrderId))
+                @livewire('orders.order-details', ['orderId' => $selectedOrderId], 'order-details-' . $selectedOrderId)
             </div>
         @endif
     </div>

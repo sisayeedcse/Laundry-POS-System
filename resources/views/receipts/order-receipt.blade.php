@@ -222,18 +222,18 @@
         <!-- Summary -->
         <div class="summary-row">
             <span>Sub Total</span>
-            <span>AED {{ number_format($order->orderItems->sum('subtotal'), 2) }}</span>
+            <span>QAR {{ number_format($order->orderItems->sum('subtotal'), 2) }}</span>
         </div>
         @if($order->discount > 0)
             <div class="summary-row">
                 <span>Discount</span>
-                <span>- AED {{ number_format($order->discount, 2) }}</span>
+                <span>- QAR {{ number_format($order->discount, 2) }}</span>
             </div>
         @endif
         @if($order->tax > 0)
             <div class="summary-row">
                 <span>Tax</span>
-                <span>AED {{ number_format($order->tax, 2) }}</span>
+                <span>QAR {{ number_format($order->tax, 2) }}</span>
             </div>
         @endif
 
@@ -241,7 +241,7 @@
 
         <div class="total-row">
             <span>Total</span>
-            <span>AED {{ number_format($order->total_amount, 2) }}</span>
+            <span>QAR {{ number_format($order->total_amount, 2) }}</span>
         </div>
 
         <div class="divider-double"></div>
@@ -250,17 +250,17 @@
         @if($order->payment_status === 'paid')
             <div class="summary-row bold">
                 <span>Paid ({{ ucfirst($order->payment_method) }})</span>
-                <span>AED {{ number_format($order->total_amount, 2) }}</span>
+                <span>QAR {{ number_format($order->total_amount, 2) }}</span>
             </div>
         @else
             <div class="summary-row bold">
                 <span>Due Payment</span>
-                <span>AED {{ number_format($order->due_balance, 2) }}</span>
+                <span>QAR {{ number_format($order->due_balance, 2) }}</span>
             </div>
             @if($order->total_paid > 0)
                 <div class="summary-row" style="font-size: 11px;">
                     <span>Paid ({{ ucfirst($order->payment_method) }})</span>
-                    <span>AED {{ number_format($order->total_paid, 2) }}</span>
+                    <span>QAR {{ number_format($order->total_paid, 2) }}</span>
                 </div>
             @endif
         @endif

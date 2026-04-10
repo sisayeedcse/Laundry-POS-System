@@ -10,21 +10,50 @@ use App\Models\Customer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 
 class Reports extends Component
 {
+    use WithPagination;
+
     public string $reportType = 'daily';
     public string $dateFrom = '';
     public string $dateTo = '';
     public string $selectedDate = '';
+
+    protected string $paginationTheme = 'tailwind';
 
     public function mount(): void
     {
         $this->selectedDate = now()->format('Y-m-d');
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = now()->format('Y-m-d');
+    }
+
+    public function updatingReportType(): void
+    {
+        $this->resetPage('deliveredOrdersPage');
+        $this->resetPage('allOrdersPage');
+    }
+
+    public function updatingSelectedDate(): void
+    {
+        $this->resetPage('deliveredOrdersPage');
+        $this->resetPage('allOrdersPage');
+    }
+
+    public function updatingDateFrom(): void
+    {
+        $this->resetPage('deliveredOrdersPage');
+        $this->resetPage('allOrdersPage');
+    }
+
+    public function updatingDateTo(): void
+    {
+        $this->resetPage('deliveredOrdersPage');
+        $this->resetPage('allOrdersPage');
     }
 
     #[Computed]
@@ -153,7 +182,7 @@ class Reports extends Component
     }
 
     #[Computed]
-    public function recentDeliveredOrders()
+    public function deliveredOrders()
     {
         $query = Order::with('customer')
             ->whereNotNull('delivered_at')
@@ -178,11 +207,11 @@ class Reports extends Component
                 break;
         }
 
-        return $query->orderByDesc('delivered_at')->limit(10)->get();
+        return $query->orderByDesc('delivered_at')->paginate(10, ['*'], 'deliveredOrdersPage');
     }
 
     #[Computed]
-    public function recentOrders()
+    public function allOrders()
     {
         $query = Order::with('customer');
 
@@ -205,7 +234,7 @@ class Reports extends Component
                 break;
         }
 
-        return $query->orderByDesc('created_at')->limit(10)->get();
+        return $query->orderByDesc('created_at')->paginate(10, ['*'], 'allOrdersPage');
     }
 
     public function getReportTitle(): string
