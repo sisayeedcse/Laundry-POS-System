@@ -79,8 +79,26 @@ class OrderList extends Component
             $query->whereDate('created_at', '<=', $this->dateTo);
         }
 
-        // Custom ordering: When no status filter, show pending first, then delivered
-        if ($this->statusFilter === 'all') {
+        // Ordering logic
+        if ($this->search) {
+            $searchTerm = $this->search;
+            // When searching: exact order_number match → starts-with order_number → other matches
+            $query->orderByRaw("
+                CASE
+                    WHEN order_number = ? THEN 1
+                    WHEN order_number LIKE ? THEN 2
+                    ELSE 3
+                END
+            ", [$searchTerm, $searchTerm . '%'])
+            ->orderByRaw("CASE 
+                WHEN status = 'pending' THEN 1 
+                WHEN status = 'processing' THEN 2 
+                WHEN status = 'ready' THEN 3 
+                WHEN status = 'delivered' THEN 4 
+                ELSE 5 
+            END")
+            ->latest();
+        } elseif ($this->statusFilter === 'all') {
             $query->orderByRaw("CASE 
                 WHEN status = 'pending' THEN 1 
                 WHEN status = 'processing' THEN 2 

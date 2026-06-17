@@ -39,7 +39,7 @@
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     @if($selectedCustomerId && $this->selectedCustomer?->customer_order_number)
-                        <p class="mt-1 text-xs text-purple-600">✓ Existing customer order ID</p>
+                        <p class="mt-1 text-xs text-purple-600 font-semibold">✓ Order ID: {{ $this->selectedCustomer->customer_order_number }}</p>
                     @endif
                 </div>
 
