@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -43,5 +44,25 @@ class ReceiptController extends Controller
         $pdf = Pdf::loadView('receipts.order-receipt', compact('order'));
         
         return $pdf->stream('receipt-' . $order->order_number . '.pdf');
+    }
+
+    /**
+     * Bulk print receipts for a given set of order IDs (from Reports page)
+     */
+    public function bulkPrint(Request $request): Response
+    {
+        $ids = array_filter(
+            array_map('intval', explode(',', $request->query('order_ids', '')))
+        );
+
+        $orders = Order::with(['customer', 'orderItems.service', 'payments'])
+            ->whereIn('id', $ids)
+            ->orderBy('created_at')
+            ->get();
+
+        $pdf = Pdf::loadView('receipts.bulk-receipts', compact('orders'))
+            ->setPaper([0, 0, 226.77, 595.28], 'portrait'); // 80mm wide; DomPDF @page handles 210mm height per receipt
+
+        return $pdf->stream('bulk-receipts-' . now()->format('Y-m-d') . '.pdf');
     }
 }

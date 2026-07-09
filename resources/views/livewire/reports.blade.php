@@ -334,4 +334,212 @@
             @endif
         </div>
     </div>
+
+    {{-- ===== PRINT RECEIPTS BY DATE ===== --}}
+    <div class="mt-4 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+
+        {{-- Section Header --}}
+        <div class="bg-purple-600 px-6 py-5 flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-white">Print Receipts by Date</h2>
+                    <p class="text-white text-xs mt-0.5">Select a date and filter to preview and print all receipts at once</p>
+                </div>
+            </div>
+
+            {{-- Print All button --}}
+            @if($this->receiptsForDate->total() > 0)
+                <a href="{{ $this->getBulkPrintUrl() }}"
+                   target="_blank"
+                   id="btn-bulk-print"
+                   class="inline-flex items-center gap-2 bg-white text-purple-700 font-semibold text-sm px-5 py-2.5 rounded-xl shadow hover:bg-purple-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print All {{ $this->receiptsForDate->total() }} Receipt{{ $this->receiptsForDate->total() === 1 ? '' : 's' }}
+                </a>
+            @endif
+        </div>
+
+        <div class="p-6">
+
+            {{-- Controls row: date picker + filter tabs --}}
+            <div class="flex flex-wrap items-end gap-4 mb-6">
+
+                {{-- Date picker --}}
+                <div class="flex-1 min-w-[180px] max-w-xs">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Select Date</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <input type="date"
+                               wire:model.live="receiptDate"
+                               id="receipt-date-picker"
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 text-sm transition-all" />
+                    </div>
+                </div>
+
+                {{-- Filter tabs --}}
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Payment Status</label>
+                    <div class="flex gap-1.5 bg-gray-100 p-1 rounded-xl">
+                        <button wire:click="$set('receiptFilter', 'all')"
+                            class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $receiptFilter === 'all' ? 'bg-white text-purple-700 shadow-sm font-semibold' : 'text-gray-600 hover:text-gray-900' }}">
+                            All
+                        </button>
+                        <button wire:click="$set('receiptFilter', 'paid')"
+                            class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $receiptFilter === 'paid' ? 'bg-white text-emerald-700 shadow-sm font-semibold' : 'text-gray-600 hover:text-gray-900' }}">
+                            Paid
+                        </button>
+                        <button wire:click="$set('receiptFilter', 'pending')"
+                            class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $receiptFilter === 'pending' ? 'bg-white text-amber-700 shadow-sm font-semibold' : 'text-gray-600 hover:text-gray-900' }}">
+                            Unpaid
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Result count badge --}}
+                <div class="ml-auto self-center">
+                    @if($this->receiptsForDate->total() > 0)
+                        <span class="inline-flex items-center gap-1.5 bg-purple-100 text-purple-800 text-sm font-semibold px-3 py-1.5 rounded-full">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ $this->receiptsForDate->total() }} order{{ $this->receiptsForDate->total() === 1 ? '' : 's' }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Receipt Table --}}
+            @if($this->receiptsForDate->total() > 0)
+                <div class="overflow-x-auto rounded-xl border border-gray-200">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Order #</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Customer</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide hidden sm:table-cell">Time</th>
+                                <th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wide">Amount</th>
+                                <th class="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wide">Status</th>
+                                <th class="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wide">Print</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach($this->receiptsForDate as $order)
+                                <tr class="hover:bg-purple-50/40 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <span class="font-bold text-purple-700">{{ $order->order_number }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-medium text-gray-900">{{ $order->customer->name }}</div>
+                                        @if($order->customer->phone)
+                                            <div class="text-xs text-gray-500">{{ $order->customer->phone }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-500 text-xs hidden sm:table-cell">
+                                        {{ $order->created_at->format('h:i A') }}
+                                    </td>
+                                    <td class="px-4 py-3 text-right font-bold text-gray-900">
+                                        {{ number_format((float) $order->total_amount, 2) }}
+                                        <span class="font-normal text-xs text-gray-500">QAR</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($order->payment_status === 'paid')
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                                ✓ Paid
+                                            </span>
+                                        @elseif($order->payment_status === 'partial')
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                                ⬤ Partial
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                                ⏳ Pending
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <a href="{{ route('orders.receipt.print', $order) }}"
+                                           target="_blank"
+                                           title="Print receipt for {{ $order->order_number }}"
+                                           class="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 hover:text-purple-800 bg-purple-100 hover:bg-purple-200 px-3 py-1.5 rounded-lg transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                            </svg>
+                                            Print
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Pagination --}}
+                @if($this->receiptsForDate->hasPages())
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        {{ $this->receiptsForDate->links() }}
+                    </div>
+                @endif
+
+                {{-- Summary footer strip --}}
+                <div class="mt-4 bg-purple-50 rounded-xl px-5 py-3 flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex items-center gap-5 text-sm">
+                        <span class="text-gray-600">
+                            <span class="font-semibold text-gray-900">{{ $this->receiptsForDate->total() }}</span> order{{ $this->receiptsForDate->total() === 1 ? '' : 's' }}
+                        </span>
+                        <span class="text-gray-400">·</span>
+                        <span class="text-gray-600">
+                            Total: <span class="font-bold text-gray-900">
+                                {{ number_format($this->receiptsForDate->getCollection()->sum(fn($o) => (float)$o->total_amount), 2) }} QAR
+                            </span>
+                            <span class="text-xs text-gray-500">(this page)</span>
+                        </span>
+                    </div>
+                    <a href="{{ $this->getBulkPrintUrl() }}"
+                       target="_blank"
+                       class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm px-5 py-2 rounded-xl transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        🖨️ Print All {{ $this->receiptsForDate->total() }} Receipts
+                    </a>
+                </div>
+
+            @else
+                {{-- Empty State --}}
+                <div class="flex flex-col items-center justify-center py-16 text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-lg font-semibold text-gray-700">No orders found</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        There are no
+                        @if($receiptFilter !== 'all') <span class="font-medium">{{ $receiptFilter }}</span> @endif
+                        orders for <span class="font-medium">{{ \Carbon\Carbon::parse($receiptDate)->format('d M Y') }}</span>.
+                    </p>
+                    <p class="text-xs text-gray-400 mt-3">Try selecting a different date or switching the payment filter.</p>
+                </div>
+            @endif
+
+        </div>
+    </div>
+
 </div>

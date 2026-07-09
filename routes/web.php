@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
     // Reports Routes - All roles
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', \App\Livewire\Reports::class)->name('index');
+        Route::get('/receipts/bulk-print', [ReceiptController::class, 'bulkPrint'])->name('receipts.bulk-print');
     });
 
     // Due Payments Routes - All roles

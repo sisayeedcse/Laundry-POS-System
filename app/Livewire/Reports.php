@@ -23,6 +23,10 @@ class Reports extends Component
     public string $dateTo = '';
     public string $selectedDate = '';
 
+    // Receipt Printing
+    public string $receiptDate = '';
+    public string $receiptFilter = 'all';
+
     protected string $paginationTheme = 'tailwind';
 
     public function mount(): void
@@ -30,6 +34,7 @@ class Reports extends Component
         $this->selectedDate = now()->format('Y-m-d');
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = now()->format('Y-m-d');
+        $this->receiptDate = now()->format('Y-m-d');
     }
 
     public function updatingReportType(): void
@@ -54,6 +59,16 @@ class Reports extends Component
     {
         $this->resetPage('deliveredOrdersPage');
         $this->resetPage('allOrdersPage');
+    }
+
+    public function updatingReceiptDate(): void
+    {
+        $this->resetPage('receiptsPage');
+    }
+
+    public function updatingReceiptFilter(): void
+    {
+        $this->resetPage('receiptsPage');
     }
 
     #[Computed]
@@ -246,6 +261,36 @@ class Reports extends Component
             'custom' => 'Custom Report - ' . Carbon::parse($this->dateFrom)->format('d M Y') . ' to ' . Carbon::parse($this->dateTo)->format('d M Y'),
             default => 'Report',
         };
+    }
+
+    #[Computed]
+    public function receiptsForDate()
+    {
+        $query = Order::with(['customer', 'orderItems.service', 'payments'])
+            ->whereDate('created_at', $this->receiptDate);
+
+        if ($this->receiptFilter === 'paid') {
+            $query->where('payment_status', 'paid');
+        } elseif ($this->receiptFilter === 'pending') {
+            $query->whereIn('payment_status', ['pending', 'partial']);
+        }
+
+        return $query->orderBy('created_at')->paginate(15, ['*'], 'receiptsPage');
+    }
+
+    public function getBulkPrintUrl(): string
+    {
+        $query = Order::whereDate('created_at', $this->receiptDate);
+
+        if ($this->receiptFilter === 'paid') {
+            $query->where('payment_status', 'paid');
+        } elseif ($this->receiptFilter === 'pending') {
+            $query->whereIn('payment_status', ['pending', 'partial']);
+        }
+
+        $ids = $query->pluck('id')->implode(',');
+
+        return route('reports.receipts.bulk-print', ['order_ids' => $ids]);
     }
 
     #[Layout('components.layouts.app', ['title' => 'Reports & Analytics'])]
