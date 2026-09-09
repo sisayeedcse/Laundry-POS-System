@@ -93,7 +93,7 @@
             {{-- Simple Add Item Card --}}
             <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6 border-2 border-dashed border-purple-300"
                 wire:key="add-item-form-{{ count($items) }}">
-                <div class="flex gap-4 items-end">
+                <div class="flex gap-4 items-end flex-wrap">
                     <div class="flex-1 min-w-[200px]">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Item</label>
                         <select wire:model.live="selectedServiceId"
@@ -122,6 +122,17 @@
                             class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
                             <option value="hanger">👔 Hanger</option>
                             <option value="fold">📦 Fold</option>
+                        </select>
+                    </div>
+
+                    {{-- Clothing Color --}}
+                    <div class="w-36">
+                        <label class="block text-base font-semibold text-gray-700 mb-2">Color</label>
+                        <select wire:model.live="clothingColor"
+                            class="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-purple-500">
+                            <option value="">None</option>
+                            <option value="white">White</option>
+                            <option value="color">Color</option>
                         </select>
                     </div>
 
@@ -176,6 +187,12 @@
                                     class="inline-flex rounded-full px-2 py-1 text-xs font-bold {{ $item['finish_type'] === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
                                     {{ $item['finish_type'] === 'hanger' ? '👔' : '📦' }}
                                 </span>
+                                @if (!empty($item['clothing_color']))
+                                    <span class="inline-flex rounded-full px-2 py-1 text-xs font-bold
+                                        {{ $item['clothing_color'] === 'white' ? 'bg-sky-100 text-sky-700 ring-1 ring-sky-300' : 'bg-pink-100 text-pink-700 ring-1 ring-pink-300' }}">
+                                        {{ ucfirst($item['clothing_color']) }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="flex items-center justify-between pt-2 border-t border-gray-300">
                                 <div>

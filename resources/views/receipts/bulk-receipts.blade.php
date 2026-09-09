@@ -196,6 +196,9 @@
                             <span>{{ $item->quantity }}x</span>
                             <span>{{ $item->service_type == 'wash_iron' ? 'W&I' : 'Iron' }}</span>
                             <span>{{ ucfirst($item->finish_type) }}</span>
+                            @if($item->color)
+                                <span style="font-weight:bold;">{{ ucfirst($item->color) }}</span>
+                            @endif
                             <span>{{ number_format($item->unit_price, 2) }}</span>
                         </div>
                         <div class="bold">{{ number_format($item->subtotal, 2) }}</div>

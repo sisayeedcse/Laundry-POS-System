@@ -25,6 +25,7 @@ class POS extends Component
     public float $price = 0;
     public string $serviceType = 'wash_iron';
     public string $finishType = 'hanger';
+    public string $clothingColor = ''; // 'white', 'color', or '' (none)
     public ?string $deliveryDate = null;
     public string $notes = '';
     public float $discount = 0; // Discount amount (optional)
@@ -261,13 +262,14 @@ class POS extends Component
         $service = Service::find($this->selectedServiceId);
         
         $this->items[] = [
-            'service_id' => $this->selectedServiceId,
+            'service_id'   => $this->selectedServiceId,
             'service_name' => $service->name,
             'service_type' => $this->serviceType,
-            'finish_type' => $this->finishType,
-            'quantity' => $this->quantity,
-            'unit_price' => $this->price,
-            'subtotal' => $this->price * $this->quantity,
+            'finish_type'  => $this->finishType,
+            'clothing_color' => $this->clothingColor, // 'white', 'color', or ''
+            'quantity'     => $this->quantity,
+            'unit_price'   => $this->price,
+            'subtotal'     => $this->price * $this->quantity,
         ];
 
         // Reset all item fields to default state using Livewire's reset method
@@ -276,13 +278,15 @@ class POS extends Component
             'quantity',
             'price',
             'serviceType',
-            'finishType'
+            'finishType',
+            'clothingColor',
         ]);
         
         // Set default values after reset
         $this->quantity = 1;
         $this->serviceType = 'wash_iron';
         $this->finishType = 'hanger';
+        $this->clothingColor = '';
         
         // Dispatch browser event to notify frontend
         $this->dispatch('item-added');
@@ -412,13 +416,14 @@ class POS extends Component
         // Create order items
         foreach ($this->items as $item) {
             OrderItem::create([
-                'order_id' => $order->id,
-                'service_id' => $item['service_id'],
-                'quantity' => $item['quantity'],
-                'service_type' => $item['service_type'],
-                'finish_type' => $item['finish_type'] ?? 'hanger',
-                'unit_price' => $item['unit_price'],
-                'subtotal' => $item['subtotal'],
+                'order_id'       => $order->id,
+                'service_id'     => $item['service_id'],
+                'quantity'       => $item['quantity'],
+                'service_type'   => $item['service_type'],
+                'finish_type'    => $item['finish_type'] ?? 'hanger',
+                'color'          => !empty($item['clothing_color']) ? $item['clothing_color'] : null,
+                'unit_price'     => $item['unit_price'],
+                'subtotal'       => $item['subtotal'],
             ]);
         }
 
@@ -559,6 +564,7 @@ class POS extends Component
         $this->quantity = 1;
         $this->price = 0;
         $this->serviceType = 'wash_iron';
+        $this->clothingColor = '';
         $this->notes = '';
         $this->discount = 0;
         $this->deliveryDate = now()->addDay()->format('Y-m-d');
