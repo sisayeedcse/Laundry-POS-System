@@ -227,6 +227,9 @@
                                                         Finish</th>
                                                     <th
                                                         class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                                        Color</th>
+                                                    <th
+                                                        class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                                         Qty</th>
                                                     <th
                                                         class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
@@ -250,8 +253,18 @@
                                                         <td class="px-4 py-3 text-center">
                                                             <span
                                                                 class="inline-flex px-2 py-1 text-xs font-semibold rounded {{ $item->finish_type === 'hanger' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
-                                                                {{ $item->finish_type === 'hanger' ? '👔 Hanger' : '📦 Fold' }}
+                                                                {{ $item->finish_type === 'hanger' ? 'Hanger' : 'Fold' }}
                                                             </span>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            @if($item->color)
+                                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded
+                                                                    {{ $item->color === 'white' ? 'bg-sky-100 text-sky-700' : 'bg-pink-100 text-pink-700' }}">
+                                                                    {{ ucfirst($item->color) }}
+                                                                </span>
+                                                            @else
+                                                                <span class="text-gray-400 text-xs">—</span>
+                                                            @endif
                                                         </td>
                                                         <td class="px-4 py-3 text-center text-sm text-gray-900">
                                                             {{ $item->quantity }}</td>
