@@ -391,16 +391,22 @@
 
         <!-- Professional Footer -->
         <footer class="bg-white border-t border-slate-200 mt-auto">
-            <div class="px-8 py-5">
+            <div class="px-8 py-4">
                 <div class="flex items-center justify-between text-sm text-slate-600">
-                    <div>
-                        <p class="font-medium">© {{ date('Y') }} Amazing Laundry Qatar. All rights reserved.</p>
-                        <p class="text-xs text-slate-500 mt-1">Street 18, Al-Attiya Market, Industrial Area, Doha, Qatar
-                        </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-700">© {{ date('Y') }} Amazing Laundry Qatar. All rights reserved.</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Street 18, Al-Attiya Market, Industrial Area, Doha, Qatar</p>
+                        </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-slate-500">Tel: 33813886</p>
-                        <p class="text-xs text-slate-500">amazinglaundry82@gmail.com</p>
+                        <p class="font-medium text-slate-600">Tel: 33813886</p>
+                        <p class="text-xs text-slate-400">amazinglaundry82@gmail.com</p>
                     </div>
                 </div>
             </div>
