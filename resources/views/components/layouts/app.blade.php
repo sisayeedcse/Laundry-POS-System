@@ -17,6 +17,56 @@
     @livewireStyles
 
     <style>
+        /* ── Pagination ───────────────────────────────── */
+        .pg-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 2.25rem; height: 2.25rem; padding: 0 0.65rem;
+            border-radius: 0.6rem; font-size: 0.875rem; font-weight: 500;
+            border: 1px solid #e5e7eb; background: #fff; color: #4b5563;
+            cursor: pointer; transition: all .15s ease;
+            text-decoration: none; white-space: nowrap; gap: 0.35rem;
+        }
+        .pg-btn:hover {
+            background: linear-gradient(135deg,#f3f0ff,#ede9fe);
+            color: #7c3aed; border-color: #c4b5fd;
+            box-shadow: 0 1px 4px rgba(124,58,237,.12);
+        }
+        .pg-btn-nav {
+            padding: 0 0.9rem; font-weight: 600; color: #7c3aed;
+            border-color: #c4b5fd;
+            background: linear-gradient(135deg,#faf5ff,#f3f0ff);
+        }
+        .pg-btn-nav:hover {
+            background: linear-gradient(135deg,#7c3aed,#4f46e5);
+            color: #fff; border-color: transparent;
+            box-shadow: 0 4px 12px rgba(124,58,237,.35);
+        }
+        .pg-btn-disabled {
+            background: #f9fafb; color: #d1d5db; border-color: #e5e7eb;
+            cursor: not-allowed; pointer-events: none;
+        }
+        .pg-btn-active {
+            background: linear-gradient(135deg,#7c3aed,#4f46e5);
+            color: #fff; border-color: transparent; font-weight: 700;
+            font-size: 0.9rem; min-width: 2.5rem; height: 2.5rem;
+            box-shadow: 0 4px 14px rgba(124,58,237,.45);
+            outline: 2.5px solid #c4b5fd; outline-offset: 2px;
+            cursor: default; pointer-events: none;
+        }
+        .pg-dots {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 2rem; color: #9ca3af; font-weight: 600;
+            letter-spacing: .05em; font-size: .8rem;
+        }
+        .pg-info-badge {
+            display: inline-flex; align-items: center; gap: .5rem;
+            padding: .4rem .9rem;
+            background: linear-gradient(135deg,#faf5ff,#f3f0ff);
+            border: 1px solid #ddd6fe; border-radius: 999px;
+            font-size: .82rem; color: #6b7280;
+        }
+        .pg-info-badge strong { color: #7c3aed; font-weight: 700; }
+
         /* Professional Design System - Optimized & Clean */
 
         /* Smooth Base Transitions */

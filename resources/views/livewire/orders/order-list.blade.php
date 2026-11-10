@@ -336,7 +336,7 @@
         {{-- Pagination --}}
         @if($this->orders->hasPages())
             <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                {{ $this->orders->links() }}
+                {{ $this->orders->links('vendor.livewire.tailwind') }}
             </div>
         @endif
 

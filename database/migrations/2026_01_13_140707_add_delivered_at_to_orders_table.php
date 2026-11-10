@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->timestamp('delivered_at')->nullable()->after('delivery_date');
-            $table->index('delivered_at');
-        });
+        if (!Schema::hasColumn('orders', 'delivered_at')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->timestamp('delivered_at')->nullable()->after('delivery_date');
+                $table->index('delivered_at');
+            });
+        }
     }
 
     /**

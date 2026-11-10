@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->enum('finish_type', ['hanger', 'fold'])->default('hanger')->after('service_type');
-        });
+        if (!Schema::hasColumn('order_items', 'finish_type')) {
+            Schema::table('order_items', function (Blueprint $table) {
+                $table->enum('finish_type', ['hanger', 'fold'])->default('hanger')->after('service_type');
+            });
+        }
     }
 
     /**

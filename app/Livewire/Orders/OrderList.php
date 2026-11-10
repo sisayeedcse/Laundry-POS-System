@@ -195,20 +195,58 @@ class OrderList extends Component
     public function deleteOrder(int $orderId): void
     {
         $order = Order::find($orderId);
-        
+
         if ($order) {
             if ($order->status === 'delivered') {
                 session()->flash('error', 'Cannot delete delivered orders!');
                 return;
             }
-            
+
+            // Remember current page BEFORE deleting
+            $currentPage = $this->getPage();
+
             $order->items()->delete();
             $order->payments()->delete();
             $order->delete();
-            
+
+            // Recalculate how many items remain (respecting active filters)
+            $remainingQuery = Order::query();
+
+            if ($this->search) {
+                $search = $this->search;
+                $remainingQuery->where(function ($q) use ($search) {
+                    $q->where('order_number', 'like', '%' . $search . '%')
+                      ->orWhereHas('customer', function ($q) use ($search) {
+                          $q->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('phone', 'like', '%' . $search . '%');
+                      });
+                });
+            }
+            if ($this->statusFilter !== 'all') {
+                $remainingQuery->where('status', $this->statusFilter);
+            }
+            if ($this->paymentFilter !== 'all') {
+                $remainingQuery->where('payment_status', $this->paymentFilter);
+            }
+            if ($this->dateFrom) {
+                $remainingQuery->whereDate('created_at', '>=', $this->dateFrom);
+            }
+            if ($this->dateTo) {
+                $remainingQuery->whereDate('created_at', '<=', $this->dateTo);
+            }
+
+            $remainingTotal = $remainingQuery->count();
+            $perPage = 20;
+
+            // Max valid page after deletion (at least page 1)
+            $maxPage = max(1, (int) ceil($remainingTotal / $perPage));
+
+            // Stay on current page; if page is now empty, go to previous page
+            $targetPage = min($currentPage, $maxPage);
+
             session()->flash('success', 'Order deleted successfully!');
             unset($this->orders);
-            $this->resetPage();
+            $this->setPage($targetPage);
         }
     }
 
@@ -260,6 +298,11 @@ class OrderList extends Component
         $this->dateTo = null;
         unset($this->orders);
         $this->resetPage();
+    }
+
+    public function paginationView(): string
+    {
+        return 'vendor.livewire.tailwind';
     }
 
     #[Layout('components.layouts.app', ['title' => 'Orders Management'])]
